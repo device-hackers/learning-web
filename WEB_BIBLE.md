@@ -3,10 +3,10 @@ Basically idea is to categorize and write-down each article link with one senten
 
 # Testing
 http://stateofjs.com/2016/testing/
-- (From PayPal dev) Write tests. Not too many. Mostly integration. Unless you develop small lib, don't try to reach 100% test coverage, avoid testing impl details because it doesn’t give you 
+- (From PayPal dev) **Write tests. Not too many. Mostly integration.** Unless you develop small lib, don't try to reach 100% test coverage, avoid testing impl details because it doesn’t give you 
 very much confidence that your app is working and it slows you down when refactoring, see details 
 [here](https://blog.kentcdodds.com/write-tests-not-too-many-mostly-integration-5e8c7fff591c)
-- (From PayPal dev) Use [data-attributes](https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes) to make relationship 
+- (From PayPal dev) **Use [data-attributes](https://developer.mozilla.org/en-US/docs/Learn/HTML/Howto/Use_data_attributes)** to make relationship 
 between source and testing code more explicit to not break tests when markup changes, see details 
 [here](https://blog.kentcdodds.com/making-your-ui-tests-resilient-to-change-d37a6ee37269)
 - Cucumber/Gherkin is [my choice](https://github.com/device-hackers/browser-ui-state/tree/master/features) for at least 
