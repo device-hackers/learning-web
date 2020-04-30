@@ -7,21 +7,17 @@ window.onload = () => {
     link.href = 'https://thebit.github.io/learning-web/styles.css';
     document.head.appendChild(link);
 
-    document.body.innerHTML +=
-        `<div class="entry">
-          <button>☰</button>
-        </div>
-        <div class="overlay hide">
-          <div class="content">
-            <div class="allTab hide"></div>
-            <div class="favoriteTab"></div>
-          </div>
-          <div class="panel">
-            <button class="close">X</button>
-            <button class="favorite selected">☆</button>
-            <button class="all">All</button>
-          </div>
-        </div>`;
+    const div1 = document.createElement('div');
+    div1.className = "entry";
+    div1.innerHTML = "<button>☰</button>";
+
+    document.body.append(div1);
+
+    const div2 = document.createElement('div');
+    div2.className = "overlay hide";
+    div2.innerHTML = "<div class=\"content\">\n            <div class=\"allTab hide\"></div>\n            <div class=\"favoriteTab\"></div>\n          </div>\n          <div class=\"panel\">\n            <button class=\"close\">X</button>\n            <button class=\"favorite selected\">☆</button>\n            <button class=\"all\">All</button>\n          </div>";
+
+    document.body.append(div2);
 
     const entry = $('.entry button');
     const overlay = $('.overlay');
