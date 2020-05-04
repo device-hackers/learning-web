@@ -1,4 +1,4 @@
-window.onload = () => {
+function init() {
     const $ = document.querySelector.bind(document);
 
     const link = document.createElement('link');
@@ -129,4 +129,10 @@ window.onload = () => {
         measureFavoritePerformance();
         favoriteTab.innerHTML = `${renderMemory()}${renderMeasurement()}`;
     }
-};
+}
+
+if (document.readyState === 'complete') {
+    init();
+} else {
+    window.onload = () => { init() };
+}
