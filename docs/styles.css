@@ -69,9 +69,25 @@ button {
 
 .content table {
     width: 100%;
+    border-collapse: collapse;
 }
 
 .content th, .content td {
-    border: 1px solid white;
+    border-color: white;
+    border-style: solid;
+    border-width: 0;
+    border-right-width: 1px;
     padding: 3px;
+}
+
+.content th:last-child, .content td:last-child {
+    border-right-width: 0;
+}
+
+.content th {
+    border-bottom-width: 1px;
+}
+
+.content tr:nth-child(odd) {
+    background: rgba(120, 120, 120, 0.7);
 }
