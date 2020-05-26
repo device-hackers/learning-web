@@ -1,4 +1,35 @@
+function loadWebVitals() {
+    let script = document.createElement('script');
+    script.src = "https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js";
+    script.defer = true;
+    document.head.append(script);
+}
+
+// Meant to be filled by Web Vitals callback functions
+const webVitalsMetrics = {
+    CLS: null,
+    FCP: null,
+    FID: null,
+    LCP: null,
+    TTFB: null,
+};
+window.wVMetrics = webVitalsMetrics;
+
+function measureWebVitals() {
+    if (!webVitals) return;
+    webVitals.getCLS(metric => webVitalsMetrics.CLS = metric.value, true);
+    webVitals.getFCP(metric => webVitalsMetrics.FCP = metric.value);
+    webVitals.getFID(metric => webVitalsMetrics.FID = metric.value);
+    webVitals.getLCP(metric => webVitalsMetrics.LCP = metric.value, true);
+    webVitals.getTTFB(metric => webVitalsMetrics.TTFB = metric.value);
+}
+
+window.wVMeasure = measureWebVitals;
+
 function init() {
+    loadWebVitals();
+    setTimeout(measureWebVitals, 200); // For some reason webVitals isn't accessible right away
+
     const $ = document.querySelector.bind(document);
 
     const link = document.createElement('link');
@@ -68,16 +99,16 @@ function init() {
 
     const renderMemory = () => {
         return performance.memory ? `<table>
-            <tr style="font-size: small"><th>jsHeapSizeLimit</th><th>totalJSHeapSize</th><th>usedJSHeapSize</th>
+            <tr style="font-size: small"><th>jsHeapSizeLimit</th><th>totalJSHeapSize</th><th>usedJSHeapSize</th></tr>
             <tr><td>${printMemoryMetric('jsHeapSizeLimit')}</td>
                 <td>${printMemoryMetric('totalJSHeapSize')}</td>
-                <td>${printMemoryMetric('usedJSHeapSize')}</td>
+                <td>${printMemoryMetric('usedJSHeapSize')}</td></tr>
           </table><br>` : '';
     };
 
     const renderMeasurement = () => {
         return `<table>
-            <tr><th>Measurement</th><th>Start (ms)</th><th>Duration (ms)</th>
+            <tr><th>Measurement</th><th>Start (ms)</th><th>Duration (ms)</th></tr>
             ${performance.getEntriesByType('paint')
             .concat(performance.getEntriesByType('measure'))
             .sort((a, b) => a.startTime - b.startTime)
@@ -85,6 +116,15 @@ function init() {
                                   <td>${entry.startTime.toFixed(1)}</td>
                                   <td>${entry.duration.toFixed(1)}</td></tr>`)
             .join('')}
+          </table>`;
+    };
+
+    const renderWebVitals = () => {
+        return `<table>
+            <tr><th>Web Vitals</th><th>Value</th></tr>
+            ${Object.entries(webVitalsMetrics).map(([key, value]) => 
+                `<tr><td>${key}</td>
+                    <td>${value && value.toFixed(1)}</td></tr>`)}
           </table>`;
     };
 
@@ -127,7 +167,8 @@ function init() {
         favorite.classList.add('selected');
         favoriteTab.classList.remove('hide');
         measureFavoritePerformance();
-        favoriteTab.innerHTML = `${renderMemory()}${renderMeasurement()}`;
+        if (!webVitals) measureWebVitals();
+        favoriteTab.innerHTML = `${renderMemory()}${renderMeasurement()}${renderWebVitals()}`;
     }
 }
 
