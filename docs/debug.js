@@ -16,7 +16,7 @@ const webVitalsMetrics = {
 window.wVMetrics = webVitalsMetrics;
 
 function measureWebVitals() {
-    if (!webVitals) return;
+    if (!window.webVitals) return;
     webVitals.getCLS(metric => webVitalsMetrics.CLS = metric.value, true);
     webVitals.getFCP(metric => webVitalsMetrics.FCP = metric.value);
     webVitals.getFID(metric => webVitalsMetrics.FID = metric.value);
@@ -167,7 +167,7 @@ function init() {
         favorite.classList.add('selected');
         favoriteTab.classList.remove('hide');
         measureFavoritePerformance();
-        if (!webVitals) measureWebVitals();
+        if (!window.webVitals) measureWebVitals();
         favoriteTab.innerHTML = `${renderMemory()}${renderMeasurement()}${renderWebVitals()}`;
     }
 }
