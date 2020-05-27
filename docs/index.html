@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Webpack Hello World</title>
     <link rel="stylesheet" href="styles.css">
-    <script defer src="https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js"></script>
+<!--    <script defer src="https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js"></script>-->
     <script>
         addEventListener('DOMContentLoaded', function() {
             /*
@@ -18,6 +18,33 @@
                 document.querySelector('#log').innerHTML += `${message}<br>`;
             }
             log(PerformanceObserver.supportedEntryTypes);
+
+            try {
+                let lcp;
+
+                const po = new PerformanceObserver((entryList) => {
+                    const entries = entryList.getEntries();
+                    const lastEntry = entries[entries.length - 1];
+
+                    // Update `lcp` to the latest value, using `renderTime` if it's available,
+                    // otherwise using `loadTime`. (Note: `renderTime` may not be available on
+                    // image elements loaded cross-origin without the `Timing-Allow-Origin` header.)
+                    lcp = lastEntry.renderTime || lastEntry.loadTime;
+                    log('LCP: ' + lcp);
+                });
+
+                po.observe({type: 'largest-contentful-paint', buffered: true});
+
+                // Send data to the server.
+                addEventListener('visibilitychange', function fn() {
+                    if (lcp && document.visibilityState === 'hidden') {
+                        log('LCP (on hide): ' + lcp);
+                        removeEventListener('visibilitychange', fn, true);
+                    }
+                }, true);
+            } catch (e) {
+                // Do nothing if the browser doesn't support this API.
+            }
         });
     </script>
     <script>
