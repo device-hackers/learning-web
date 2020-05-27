@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <title>Webpack Hello World</title>
     <link rel="stylesheet" href="styles.css">
-<!--    <script>-->
-<!--        let script = document.createElement('script');-->
-<!--        script.src = "debug.js";-->
-
-<!--        document.head.append(script);-->
-<!--    </script>-->
     <script defer src="https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js"></script>
     <script>
         addEventListener('DOMContentLoaded', function() {
@@ -19,6 +13,12 @@
             webVitals.getLCP((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
             webVitals.getTTFB((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
         });
+    </script>
+    <script>
+        let script = document.createElement('script');
+        script.src = "debug.js";
+
+        document.head.append(script);
     </script>
 </head>
 <body>

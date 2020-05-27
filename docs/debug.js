@@ -1,6 +1,7 @@
 function loadWebVitals() {
     let script = document.createElement('script');
     script.src = "https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js";
+    script.defer = true;
     document.head.append(script);
 }
 
@@ -12,7 +13,6 @@ const webVitalsMetrics = {
     LCP: null,
     TTFB: null,
 };
-window.wVMetrics = webVitalsMetrics;
 
 function measureWebVitals() {
     if (!window.webVitals) return;
@@ -23,10 +23,9 @@ function measureWebVitals() {
     webVitals.getTTFB(metric => webVitalsMetrics.TTFB = metric.value);
 }
 
-window.wVMeasure = measureWebVitals;
-
 function init() {
-    loadWebVitals();
+    // Will be loaded in index.html for now
+    // loadWebVitals();
     setTimeout(measureWebVitals, 200); // For some reason webVitals isn't accessible right away
 
     const $ = document.querySelector.bind(document);
