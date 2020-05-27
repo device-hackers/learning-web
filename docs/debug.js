@@ -1,24 +1,4 @@
-function loadWebVitals() {
-    let script = document.createElement('script');
-    script.src = "https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js";
-    script.defer = true;
-    document.head.append(script);
-}
-
-function measureWebVitals() {
-    if (!window.webVitals) return;
-    webVitals.getCLS(metric => window.webVitalsMetrics.CLS = metric.value, true);
-    webVitals.getFCP(metric => window.webVitalsMetrics.FCP = metric.value);
-    webVitals.getFID(metric => window.webVitalsMetrics.FID = metric.value);
-    webVitals.getLCP(metric => window.webVitalsMetrics.LCP = metric.value, true);
-    webVitals.getTTFB(metric => window.webVitalsMetrics.TTFB = metric.value);
-}
-
 function init() {
-    // Will be loaded in index.html for now
-    // loadWebVitals();
-    setTimeout(measureWebVitals, 200); // For some reason webVitals isn't accessible right away
-
     const $ = document.querySelector.bind(document);
 
     const link = document.createElement('link');
@@ -52,6 +32,30 @@ function init() {
     const beginChunk = 'begin';
     const endChunk = 'end';
     const doneChunk = 'done';
+
+    let lcp = '';
+    const initLCP = () => {
+        try {
+            // let lcp;
+
+            const po = new PerformanceObserver((entryList) => {
+                const entries = entryList.getEntries();
+                const lastEntry = entries[entries.length - 1];
+
+                // Update `lcp` to the latest value, using `renderTime` if it's available,
+                // otherwise using `loadTime`. (Note: `renderTime` may not be available on
+                // image elements loaded cross-origin without the `Timing-Allow-Origin` header.)
+                lcp = lastEntry.renderTime || lastEntry.loadTime;
+            });
+
+            po.observe({type: 'largest-contentful-paint', buffered: true});
+        } catch (e) {
+            // Do nothing if the browser doesn't support this API.
+            lcp = `error: ${e.message}`;
+        }
+    }
+
+    initLCP();
 
     entry.onclick = () => {
         entry.classList.toggle('hide');
@@ -108,12 +112,11 @@ function init() {
           </table>`;
     };
 
-    const renderWebVitals = () => {
-        return `<table>
-            <tr><th>Web Vitals</th><th>Value</th></tr>
-            ${Object.entries(window.webVitalsMetrics).map(([key, value]) => 
-                `<tr><td>${key}</td>
-                    <td>${value && value.toFixed(1)}</td></tr>`)}
+    const renderLCP = () => {
+        return `<hr><div>PerformanceObserver.supportedEntryTypes: ${PerformanceObserver.supportedEntryTypes}</div>
+            <table><tr><th>Web Vitals</th><th>Value</th></tr>
+            <tr><td>LCP (Largest Contentful Paint)</td>
+            <td>${lcp && typeof lcp === 'number' && lcp.toFixed(1) || lcp}</td></tr>
           </table>`;
     };
 
@@ -156,8 +159,7 @@ function init() {
         favorite.classList.add('selected');
         favoriteTab.classList.remove('hide');
         measureFavoritePerformance();
-        if (!window.webVitals) measureWebVitals();
-        favoriteTab.innerHTML = `${renderMemory()}${renderMeasurement()}${renderWebVitals()}`;
+        favoriteTab.innerHTML = `${renderMemory()}${renderMeasurement()}${renderLCP()}`;
     }
 }
 

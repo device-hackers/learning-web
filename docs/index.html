@@ -4,16 +4,8 @@
     <meta charset="UTF-8">
     <title>Webpack Hello World</title>
     <link rel="stylesheet" href="styles.css">
-<!--    <script defer src="https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js"></script>-->
     <script>
         addEventListener('DOMContentLoaded', function() {
-            /*
-            webVitals.getCLS((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
-            webVitals.getFID((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
-            webVitals.getFCP((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
-            webVitals.getLCP((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
-            webVitals.getTTFB((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
-            */
             function log(message) {
                 document.querySelector('#log').innerHTML += `${message}<br>`;
             }
@@ -34,14 +26,6 @@
                 });
 
                 po.observe({type: 'largest-contentful-paint', buffered: true});
-
-                // Send data to the server.
-                addEventListener('visibilitychange', function fn() {
-                    if (lcp && document.visibilityState === 'hidden') {
-                        log('LCP (on hide): ' + lcp);
-                        removeEventListener('visibilitychange', fn, true);
-                    }
-                }, true);
             } catch (e) {
                 // Do nothing if the browser doesn't support this API.
             }
