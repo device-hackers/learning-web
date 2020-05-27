@@ -5,22 +5,13 @@ function loadWebVitals() {
     document.head.append(script);
 }
 
-// Meant to be filled by Web Vitals callback functions
-const webVitalsMetrics = {
-    CLS: null,
-    FCP: null,
-    FID: null,
-    LCP: null,
-    TTFB: null,
-};
-
 function measureWebVitals() {
     if (!window.webVitals) return;
-    webVitals.getCLS(metric => webVitalsMetrics.CLS = metric.value, true);
-    webVitals.getFCP(metric => webVitalsMetrics.FCP = metric.value);
-    webVitals.getFID(metric => webVitalsMetrics.FID = metric.value);
-    webVitals.getLCP(metric => webVitalsMetrics.LCP = metric.value, true);
-    webVitals.getTTFB(metric => webVitalsMetrics.TTFB = metric.value);
+    webVitals.getCLS(metric => window.webVitalsMetrics.CLS = metric.value, true);
+    webVitals.getFCP(metric => window.webVitalsMetrics.FCP = metric.value);
+    webVitals.getFID(metric => window.webVitalsMetrics.FID = metric.value);
+    webVitals.getLCP(metric => window.webVitalsMetrics.LCP = metric.value, true);
+    webVitals.getTTFB(metric => window.webVitalsMetrics.TTFB = metric.value);
 }
 
 function init() {
@@ -120,7 +111,7 @@ function init() {
     const renderWebVitals = () => {
         return `<table>
             <tr><th>Web Vitals</th><th>Value</th></tr>
-            ${Object.entries(webVitalsMetrics).map(([key, value]) => 
+            ${Object.entries(window.webVitalsMetrics).map(([key, value]) => 
                 `<tr><td>${key}</td>
                     <td>${value && value.toFixed(1)}</td></tr>`)}
           </table>`;

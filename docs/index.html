@@ -7,11 +7,17 @@
     <script defer src="https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js"></script>
     <script>
         addEventListener('DOMContentLoaded', function() {
+            /*
             webVitals.getCLS((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
             webVitals.getFID((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
             webVitals.getFCP((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
             webVitals.getLCP((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
             webVitals.getTTFB((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
+            */
+            function log(message) {
+                document.querySelector('#log').innerHTML += `${message}<br>`;
+            }
+            log(PerformanceObserver.supportedEntryTypes);
         });
     </script>
     <script>
@@ -23,6 +29,9 @@
 </head>
 <body>
     <h1>Webpack Hello World</h1>
-    <div><a href="index2.html">index2</a></div>
+    <div><a href="index2.html">index2</a></div><br>
+    Log:<hr>
+    <div id="log" style="background-color: #EEEEEE"></div>
+    <hr>
 </body>
 </html>
