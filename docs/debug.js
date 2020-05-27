@@ -100,23 +100,19 @@ function init() {
     };
 
     const renderMeasurement = () => {
+        const fcp = 'first-contentful-paint';
         return `<table>
             <tr><th>Measurement</th><th>Start (ms)</th><th>Duration (ms)</th></tr>
             ${performance.getEntriesByType('paint')
             .concat(performance.getEntriesByType('measure'))
             .sort((a, b) => a.startTime - b.startTime)
-            .map(entry => `<tr><td>${entry.name}</td>
+            .map(entry => `<tr><td>${entry.name === fcp ? `${entry.name} (FCP)` : entry.name}</td>
                                   <td>${entry.startTime.toFixed(1)}</td>
                                   <td>${entry.duration.toFixed(1)}</td></tr>`)
             .join('')}
-          </table>`;
-    };
-
-    const renderLCP = () => {
-        return `<hr><div>PerformanceObserver.supportedEntryTypes: ${PerformanceObserver.supportedEntryTypes}</div>
-            <table><tr><th>Web Vitals</th><th>Value</th></tr>
-            <tr><td>LCP (Largest Contentful Paint)</td>
-            <td>${lcp && typeof lcp === 'number' && lcp.toFixed(1) || lcp}</td></tr>
+            <tr><td>largest-contentful-paint (LCP)</td>
+                <td>${lcp && typeof lcp === 'number' && lcp.toFixed(1) || lcp}</td>
+                <td>0</td></tr>
           </table>`;
     };
 
@@ -159,7 +155,7 @@ function init() {
         favorite.classList.add('selected');
         favoriteTab.classList.remove('hide');
         measureFavoritePerformance();
-        favoriteTab.innerHTML = `${renderMemory()}${renderMeasurement()}${renderLCP()}`;
+        favoriteTab.innerHTML = `${renderMemory()}${renderMeasurement()}`;
     }
 }
 
