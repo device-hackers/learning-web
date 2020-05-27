@@ -4,79 +4,25 @@
     <meta charset="UTF-8">
     <title>Webpack Hello World</title>
     <link rel="stylesheet" href="styles.css">
+<!--    <script>-->
+<!--        let script = document.createElement('script');-->
+<!--        script.src = "debug.js";-->
+
+<!--        document.head.append(script);-->
+<!--    </script>-->
+    <script defer src="https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js"></script>
     <script>
-        performance.mark("begin");
-        const t0 = performance.now();
-        console.log(t0);
-        const tt0 = new Date();
-        console.log(tt0);
-        sessionStorage.setItem('key', t0);
-        sessionStorage.setItem('key2', tt0);
-
-        /*for (i = 0; i < 10000; i++) {
-            console.log('counting...');
-        }*/
-
-        const t1 = performance.now();
-        console.log(t1);
-        const tt1 = new Date();
-        console.log(tt1);
-        console.log("Call to doSomething took " + (t1 - t0)/1000 + " seconds.")
-        console.log("Call to doSomething took2 " + (tt1 - tt0)/1000 + " seconds.")
-
-        function run_PerformanceEntry() {
-
-            // check for feature support before continuing
-            if (performance.mark === undefined) {
-                console.log("performance.mark not supported");
-                return;
-            }
-
-            // Create a performance entry named "begin" via the mark() method
-            performance.mark("begin");
-
-            // Check the entryType of all the "begin" entries
-            var entriesNamedBegin = performance.getEntriesByName("begin");
-            for (var i=0; i < entriesNamedBegin.length; i++) {
-                var typeOfEntry = entriesNamedBegin[i].entryType;
-                console.log("Entry is type: " + typeOfEntry);
-            }
-
-        }
-
-        run_PerformanceEntry();
-        performance.mark("end");
-        performance.measure('count loop', 'begin', 'end');
-
+        addEventListener('DOMContentLoaded', function() {
+            webVitals.getCLS((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
+            webVitals.getFID((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
+            webVitals.getFCP((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
+            webVitals.getLCP((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
+            webVitals.getTTFB((metric) => document.write(metric.name + ': ' + metric.value + '<hr>'));
+        });
     </script>
 </head>
 <body>
     <h1>Webpack Hello World</h1>
-    <script src="bundle.js"></script>
     <div><a href="index2.html">index2</a></div>
-    <div class="overlay">
-        <div class="content">
-            <div class="favoriteTab">
-                <table>
-                    <tbody><tr><th>Measurement</th><th>Start (ms)</th><th>Duration (ms)</th>
-                    </tr><tr><td>navigation:done</td>
-                        <td>0.0</td>
-                        <td>1458.0</td></tr><tr><td>html:done</td>
-                        <td>0.0</td>
-                        <td>244.0</td></tr><tr><td>bundle:done</td>
-                        <td>244.0</td>
-                        <td>1214.0</td></tr><tr><td>first-paint</td>
-                        <td>621.7</td>
-                        <td>0.0</td></tr><tr><td>i18n:done</td>
-                        <td>1155.0</td>
-                        <td>592.3</td></tr><tr><td>first-contentful-paint</td>
-                        <td>1539.5</td>
-                        <td>0.0</td></tr><tr><td>pageMount:done</td>
-                        <td>1957.9</td>
-                        <td>68.9</td></tr>
-                    </tbody></table>
-            </div>
-        </div>
-    </div>
 </body>
 </html>

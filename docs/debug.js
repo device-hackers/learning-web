@@ -1,7 +1,6 @@
 function loadWebVitals() {
     let script = document.createElement('script');
     script.src = "https://unpkg.com/web-vitals@0.2.2/dist/web-vitals.es5.umd.min.js";
-    script.defer = true;
     document.head.append(script);
 }
 
