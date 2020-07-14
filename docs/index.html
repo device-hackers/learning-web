@@ -5,6 +5,7 @@
     <title>Webpack Hello World</title>
     <link rel="stylesheet" href="styles.css">
     <script>
+        performance.mark('init html');
         addEventListener('DOMContentLoaded', function() {
             function log(message) {
                 document.querySelector('#log').innerHTML += `${message}<br>`;
