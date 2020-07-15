@@ -5,10 +5,18 @@
     <title>Webpack Hello World</title>
     <link rel="stylesheet" href="styles.css">
     <script>
-        performance.mark('test:begin');
+        performance.mark('shortTask:begin');
         const multiply = 82 * 21;
-        performance.mark('test:end');
-        performance.measure('test', 'test:begin', 'test:end');
+        performance.mark('shortTask:end');
+        performance.measure('shortTask:done', 'shortTask:begin', 'shortTask:end');
+
+        performance.mark('longTask:begin');
+
+        setTimeout(() => {
+            performance.mark('longTask:end');
+            performance.measure('longTask:done', 'longTask:begin', 'longTask:end');
+        }, 1000);
+
         addEventListener('DOMContentLoaded', function() {
             function log(message) {
                 document.querySelector('#log').innerHTML += `${message}<br>`;
