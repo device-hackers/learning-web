@@ -1,60 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <title>Webpack Hello World</title>
-    <link rel="stylesheet" href="styles.css">
-    <script>
-        performance.mark('shortTask:begin');
-        const multiply = 82 * 21;
-        performance.mark('shortTask:end');
-        performance.measure('shortTask:done', 'shortTask:begin', 'shortTask:end');
-
-        performance.mark('longTask:begin');
-
-        setTimeout(() => {
-            performance.mark('longTask:end');
-            performance.measure('longTask:done', 'longTask:begin', 'longTask:end');
-        }, 1000);
-
-        addEventListener('DOMContentLoaded', function() {
-            function log(message) {
-                document.querySelector('#log').innerHTML += `${message}<br>`;
-            }
-            log(PerformanceObserver.supportedEntryTypes);
-
-            try {
-                let lcp;
-
-                const po = new PerformanceObserver((entryList) => {
-                    const entries = entryList.getEntries();
-                    const lastEntry = entries[entries.length - 1];
-
-                    // Update `lcp` to the latest value, using `renderTime` if it's available,
-                    // otherwise using `loadTime`. (Note: `renderTime` may not be available on
-                    // image elements loaded cross-origin without the `Timing-Allow-Origin` header.)
-                    lcp = lastEntry.renderTime || lastEntry.loadTime;
-                    log('LCP: ' + lcp);
-                });
-
-                po.observe({type: 'largest-contentful-paint', buffered: true});
-            } catch (e) {
-                // Do nothing if the browser doesn't support this API.
-            }
-        });
-    </script>
-    <script>
-        let script = document.createElement('script');
-        script.src = "debug.js";
-
-        document.head.append(script);
-    </script>
-</head>
-<body>
-    <h1>Hello World! 2</h1>
-    <div><a href="index2.html">index2</a></div><br>
-    Log:<hr>
-    <div id="log" style="background-color: #EEEEEE"></div>
-    <hr>
-</body>
+    <title>Hello HTTP World!</title>
+  </head>
+  <body>
+    <h1>And hello to HTML :)</h1>
+  </body>
 </html>
