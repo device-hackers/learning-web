@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello HTTP World!</title>
+    <script>
+      function toggleTable() {
+          if (document.getElementById('status-table').style.display == "table") {
+              document.getElementById('status-table').style = 'display:none';
+          } else {
+              document.getElementById('status-table').style = 'display:table';
+          }
+      }
+    </script>
   </head>
   <body>
     <h1 style="color:red">Student Page</h1> 
@@ -42,5 +51,5 @@
     background-size: contain;
 " onclick="document.getElementById('status-table').style='display:none'"></button>
  <br></br>   
- <img src="/img/b1cc9987043f82eda1963ab8ba5d03c5.jpg" alt="Задана ширина" width="300">
+ <img src="/img/b1cc9987043f82eda1963ab8ba5d03c5.jpg" alt="Задана ширина" width="300" onclick="toggleTable()">
  <img  style="width:300px; display:block"src="/img/b1cc9987043f82eda1963ab8ba5d03c5.jpg" alt="Задана ширина" width="300">
