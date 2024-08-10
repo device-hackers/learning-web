@@ -17,6 +17,6 @@ system tests (aka end-to-end), see details: [1](https://www.sitepoint.com/bdd-ja
 - **Gherkin feature files should be written by QA** (not BA/PO or Devs), see details [here](https://habrahabr.ru/post/275013/) (RU)
 
 # Conventions
-- **Don't use semicolons and double quotes in JS** to facilitate better readability, e.g. 
+- **Don't use semicolons and double quotes in JS** to facilitate better readability, e.g.
 [Riot](http://riotjs.com/faq/#why-are-there-no-semicolons-in-the-source-code), 
 [2](https://github.com/kentcdodds/testing-workshop/blob/1938d6fc2048e55362679905f700f938a3b497c4/cypress/e2e/post_spec.js)
