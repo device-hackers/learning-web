@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <title>Hello HTTP World!</title>
     <script>
-      function toggleTable() {
-          if (document.getElementById('status-table').style.display == "table") {
-              document.getElementById('status-table').style = 'display:none';
+      function toggleElement(elementId) {
+          if (document.getElementById(elementId).style.display == "block") {
+              document.getElementById(elementId).style = 'display:none';
           } else {
-              document.getElementById('status-table').style = 'display:table';
+              document.getElementById(elementId).style = 'display:table';
           }
       }
     </script>
   </head>
   <body>
-    <h1 style="color:red">Student Page</h1> 
+    <h1 id="welcomeHeader" style="color:red">Student Page</h1> 
     <h2 style="color:rgb(200,0,0)"> Welcome!</h2> 
     <a href="http://learning-web.rocks/index2.html" target="_blank">http://learning-web.rocks/index2.html</a>
     <h3 style="color:rgb(75,0,130)"> Home work for Alona!</h3>
@@ -51,5 +51,6 @@
     background-size: contain;
 " onclick="document.getElementById('status-table').style='display:none'"></button>
  <br></br>   
- <img src="/img/b1cc9987043f82eda1963ab8ba5d03c5.jpg" alt="Задана ширина" width="300" onclick="toggleTable()">
- <img  style="width:300px; display:block"src="/img/b1cc9987043f82eda1963ab8ba5d03c5.jpg" alt="Задана ширина" width="300">
+ <img src="/img/b1cc9987043f82eda1963ab8ba5d03c5.jpg" alt="Задана ширина" width="300" onclick="toggleElement('status-table')">
+ <img  style="width:300px; display:block"src="/img/b1cc9987043f82eda1963ab8ba5d03c5.jpg" alt="Задана ширина" width="300" onclick="toggleElement('welcomeHeader')">
+ 
