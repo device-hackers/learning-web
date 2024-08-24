@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello HTTP World!</title>
+    <style>
+      .myHeader {
+        color: red;
+      }    
+    </style>
     <script>
       function toggleElement(elementId) {
         if (document.getElementById(elementId).checkVisibility()) {
@@ -14,7 +19,7 @@
     </script>
   </head>
   <body>
-    <h1 id="welcomeHeader" style="color:red">Student Page</h1>
+    <h1 id="welcomeHeader" class="myHeader" >Student Page</h1>
     <h2 style="color:rgb(200,0,0)"> Welcome!</h2> 
     <a href="http://learning-web.rocks/index2.html" target="_blank">http://learning-web.rocks/index2.html</a>
     <h3 style="color:rgb(75,0,130)"> Home work for Alona!</h3>
