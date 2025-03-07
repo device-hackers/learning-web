@@ -3,9 +3,23 @@
   <head>
     <meta charset="UTF-8">
     <title>Welcome to site 2!</title>
+    <link rel="stylesheet" href="common-styles.css" />
   </head>
   <body>
-    <h1>Site 2</h1>
-    <a href="https://learning-web.rocks">Back to the root domain</a>
+    <h1>Site 2 (site2.learning-web.rocks)</h1>
+    <p><a href="https://learning-web.rocks">Back to the root domain</a></p>
+    <label>localStorage:</label>
+    <button id="refresh">Refresh</button>
+    <button id="clear" style="margin-right: 30px">Clear</button>
+    <label>postMessage:</label>
+    <button id="setToken">Set token</button>
+    <button id="getToken">Get token</button>
+
+    <pre id="localStorageOutput"></pre>
+
+    <iframe id="authBridge" src="https://auth-bridge.learning-web.rocks"></iframe>
+
+    <script src="common-script.js"></script>
+    <script src="site-script.js"></script>
   </body>
 </html>

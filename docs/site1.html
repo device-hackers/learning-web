@@ -3,59 +3,23 @@
   <head>
     <meta charset="UTF-8">
     <title>Welcome to site 1!</title>
-    <style>
-      pre {
-        background-color: lightgray;
-        padding: 10px;
-        width: 450px;
-      }
-      iframe {
-        width: 500px;
-        height: 250px;
-      }
-      button {
-        margin-left: 10px;
-      }
-    </style>
+    <link rel="stylesheet" href="common-styles.css" />
   </head>
   <body>
     <h1>Site 1 (site1.learning-web.rocks)</h1>
     <p><a href="https://learning-web.rocks">Back to the root domain</a></p>
     <label>localStorage:</label>
     <button id="refresh">Refresh</button>
+    <button id="clear" style="margin-right: 30px">Clear</button>
+    <label>postMessage:</label>
     <button id="setToken">Set token</button>
+    <button id="getToken">Get token</button>
+
     <pre id="localStorageOutput"></pre>
-    <iframe id="authBridge" src="auth-bridge.html"></iframe>
 
-    <script>
-      const localStorageOutput = document.getElementById('localStorageOutput');
-      const refresh = document.getElementById('refresh');
+    <iframe id="authBridge" src="https://auth-bridge.learning-web.rocks"></iframe>
 
-      function displayLocalStorage() {
-        const output = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          const value = localStorage.getItem(key);
-          output.push(`${key}: ${value}`);
-        }
-        localStorageOutput.innerText = output.join('\n');
-      }
-
-      refresh.addEventListener('click', displayLocalStorage);
-
-      displayLocalStorage();
-
-      document.getElementById('setToken').addEventListener('click', function() {
-        const now = new Date();
-        const token = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
-        
-        localStorage.setItem('token', token);
-        
-        displayLocalStorage();
-        
-        const authBridgeWindow = window.frames[0];
-        authBridgeWindow.postMessage({ type: 'SET_TOKEN', token }, '*');
-      });
-    </script>
+    <script src="common-script.js"></script>
+    <script src="site-script.js"></script>
   </body>
 </html>

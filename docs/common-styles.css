@@ -1,0 +1,12 @@
+pre {
+    background-color: lightgray;
+    padding: 10px;
+    width: 450px;
+}
+iframe {
+    width: 500px;
+    height: 250px;
+}
+button {
+    margin-left: 10px;
+}
