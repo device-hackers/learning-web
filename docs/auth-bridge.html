@@ -23,7 +23,10 @@
     <h2>Auth bridge (auth-bridge.learning-web.rocks)</h2>
     <label>localStorage:</label>
     <button id="refresh">Refresh</button>
-    <button id="clear">Clear</button>
+    <button id="clear" style="margin-right: 30px">Clear</button>
+    <label>Storage Access API:</label>
+    <span id="storageStatus">Checking status...</span>
+
     <pre id="localStorageOutput"></pre>
 
     <!-- Common script -->
@@ -63,6 +66,28 @@
           event.source.postMessage({ type: 'TOKEN_RESPONSE', token }, '*');
         }
       });
+      const storageStatus = document.getElementById('storageStatus');
+
+      async function requestAccessWithUserGesture() {
+        try {
+          await document.requestStorageAccess();
+        } catch (error) {
+          storageStatus.innerHTML = `<span style="color: red">Access denied: ${error.message}</span>`;
+        }
+      }
+      async function checkStorageAccess() {
+        try {
+          const hasStorageAccess = await document.hasStorageAccess();
+          if (hasStorageAccess) {
+            storageStatus.innerHTML = '<span style="color: green">Access granted</span>';
+          } else {
+            storageStatus.innerHTML = '<button onclick="requestAccessWithUserGesture()">Request access</button>';
+          }
+        } catch (error) {
+          storageStatus.innerHTML = `<span style="color: red">Error: ${error.message}</span>`;
+        }
+      }
+      checkStorageAccess();
     </script>
   </body>
 </html>
