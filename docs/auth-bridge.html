@@ -3,7 +3,20 @@
   <head>
     <meta charset="UTF-8">
     <title>Welcome to auth bridge!</title>
-    <link rel="stylesheet" href="common-styles.css" />
+    <style>
+      pre {
+        background-color: lightgray;
+        padding: 10px;
+        width: 450px;
+      }
+      iframe {
+        width: 500px;
+        height: 250px;
+      }
+      button {
+        margin-left: 10px;
+      }
+    </style>
   </head>
   <body>
     <h2>Auth bridge (auth-bridge.learning-web.rocks)</h2>
@@ -12,7 +25,43 @@
     <button id="clear">Clear</button>
     <pre id="localStorageOutput"></pre>
 
-    <script src="common-script.js"></script>
-    <script src="auth-bridge.js"></script>
+    <!-- Common script -->
+    <script>
+      const refresh = document.getElementById('refresh');
+      const clear = document.getElementById('clear');
+      const localStorageOutput = document.getElementById('localStorageOutput');
+
+      function displayLocalStorage() {
+        const output = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          output.push(`${key}: ${value}`);
+        }
+        localStorageOutput.innerText = output.join('\n');
+      }
+
+      refresh.addEventListener('click', displayLocalStorage);
+
+      clear.addEventListener('click', function() {
+        localStorage.clear();
+        displayLocalStorage();
+      });
+
+      displayLocalStorage();
+    </script>
+
+    <!-- Auth bridge script -->
+    <script>
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'SET_TOKEN') {
+          localStorage.setItem('token', event.data.token);
+          displayLocalStorage();
+        } else if (event.data && event.data.type === 'GET_TOKEN') {
+          const token = localStorage.getItem('token') || '';
+          event.source.postMessage({ type: 'TOKEN_RESPONSE', token }, '*');
+        }
+      });
+    </script>
   </body>
 </html>

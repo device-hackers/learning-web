@@ -3,7 +3,20 @@
   <head>
     <meta charset="UTF-8">
     <title>Welcome to site 2!</title>
-    <link rel="stylesheet" href="common-styles.css" />
+    <style>
+      pre {
+        background-color: lightgray;
+        padding: 10px;
+        width: 450px;
+      }
+      iframe {
+        width: 500px;
+        height: 250px;
+      }
+      button {
+        margin-left: 10px;
+      }
+    </style>
   </head>
   <body>
     <h1>Site 2 (site2.learning-web.rocks)</h1>
@@ -19,7 +32,57 @@
 
     <iframe id="authBridge" src="https://auth-bridge.learning-web.rocks"></iframe>
 
-    <script src="common-script.js"></script>
-    <script src="site-script.js"></script>
+    <!-- Common script -->
+    <script>
+      const refresh = document.getElementById('refresh');
+      const clear = document.getElementById('clear');
+      const localStorageOutput = document.getElementById('localStorageOutput');
+
+      function displayLocalStorage() {
+        const output = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          output.push(`${key}: ${value}`);
+        }
+        localStorageOutput.innerText = output.join('\n');
+      }
+
+      refresh.addEventListener('click', displayLocalStorage);
+
+      clear.addEventListener('click', function() {
+        localStorage.clear();
+        displayLocalStorage();
+      });
+
+      displayLocalStorage();
+    </script>
+
+    <!-- Site script -->
+    <script>
+      const authBridgeWindow = document.getElementById('authBridge').contentWindow;
+
+      document.getElementById('setToken').addEventListener('click', function() {
+        const now = new Date();
+        const token = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+
+        localStorage.setItem('token', token);
+
+        displayLocalStorage();
+
+        authBridgeWindow.postMessage({ type: 'SET_TOKEN', token }, '*');
+      });
+
+      document.getElementById('getToken').addEventListener('click', function() {
+        authBridgeWindow.postMessage({ type: 'GET_TOKEN' }, '*');
+      });
+
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'TOKEN_RESPONSE') {
+          localStorage.setItem('token', event.data.token);
+          displayLocalStorage();
+        }
+      });
+    </script>
   </body>
 </html>
