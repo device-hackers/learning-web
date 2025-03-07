@@ -3,8 +3,47 @@
   <head>
     <meta charset="UTF-8">
     <title>Welcome to auth bridge!</title>
+    <style>
+      pre {
+        background-color: lightgray;
+        padding: 10px;
+        width: 450px;
+      }
+      button {
+        margin-left: 10px;
+      }
+    </style>
   </head>
   <body>
-    <h1>Auth bridge</h1>
+    <h2>Auth bridge (auth-bridge.learning-web.rocks)</h2>
+    <label>localStorage:</label>
+    <button id="refreshButton">Refresh</button>
+    <pre id="localStorageOutput"></pre>
+
+    <script>
+      const localStorageOutput = document.getElementById('localStorageOutput');
+      const refreshButton = document.getElementById('refreshButton');
+
+      function displayLocalStorage() {
+        const output = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          output.push(`${key}: ${value}`);
+        }
+        localStorageOutput.innerText = output.join('\n');
+      }
+
+      refreshButton.addEventListener('click', displayLocalStorage);
+
+      displayLocalStorage();
+
+      window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'SET_TOKEN') {
+          localStorage.setItem('token', event.data.token);
+          displayLocalStorage();
+        }
+      });
+    </script>
   </body>
 </html>
