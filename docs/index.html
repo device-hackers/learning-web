@@ -1,62 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Hello HTTP World!</title>
-    <style>
-      .myHeader {
-        color: red;
-      }    
-    </style>
-    <script>
-      function toggleElement(elementId) {
-        if (document.getElementById(elementId).checkVisibility()) {
-            document.getElementById(elementId).style = 'display:none';
-        } else {
-            document.getElementById(elementId).style = 'display:block';
-        }
-      }
-    </script>
-  </head>
-  <body>
-    <h1 id="welcomeHeader" class="myHeader" >Student Page</h1>
-    <h2 style="color:rgb(200,0,0)"> Welcome!</h2> 
-    <a href="http://learning-web.rocks/index2.html" target="_blank">http://learning-web.rocks/index2.html</a>
-    <h3 style="color:rgb(75,0,130)"> Home work for Alona!</h3>
-    <b>bold</b> <i>italic</i> <u>underlined</u>
-    <br/>
-    <table id="status-table" border="1">
-    <thead>
-      <tr>
-        <th>Добавить</th></th>
-        <th>Статус</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Табличку</td>
-        <td>Готово</td>
-      </tr>
-      <tr> 
-        <td>Кнопку</td>
-        <td>Готово</td>
-      </tr>
-      <tr>
-        <td>Картинку</td>
-        <td>Готово</td>
-      </tr>
-    </tbody>
-    </table>
-    <br/>
-    <button type="button" name="next-page" style="
-        background-color: green;
-        background-image: url(https://sotni.ru/wp-content/uploads/2023/08/tsvetochek-1.webp);
-        width: 100px;
-        height: 50px;
-        background-size: contain;
-    " onclick="document.getElementById('status-table').style='display:none'"></button>
-    <br/> 
-    <img src="/img/b1cc9987043f82eda1963ab8ba5d03c5.jpg" alt="Задана ширина" width="300" onclick="toggleElement('status-table')">
-    <img  style="width:300px; display:block"src="/img/b1cc9987043f82eda1963ab8ba5d03c5.jpg" alt="Задана ширина" width="300" onclick="toggleElement('welcomeHeader')">
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to cross auth demo!</title>
+</head>
+<body>
+<h1>Welcome to cross domain auth demo!</h1>
+<ul>
+  <li><a href="site1.html">Site 1</a></li>
+  <li><a href="site2.html">Site 2</a></li>
+  <li><a href="auth-bridge.html">Auth Bridge</a></li>
+</ul>
+</body>
 </html>

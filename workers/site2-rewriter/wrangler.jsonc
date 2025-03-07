@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "site1-rewriter",
+	"name": "site2-rewriter",
 	"main": "src/index.js",
 	"compatibility_date": "2025-03-03",
 	"observability": {
