@@ -12,29 +12,40 @@
       }
       iframe {
         width: 500px;
-        height: 250px;
+        height: 300px;
       }
       button {
-        margin-left: 10px;
+        margin-left: 5px;
       }
     </style>
   </head>
   <body>
     <h1>Site 1 (site1.learning-web.rocks)</h1>
     <p><a href="https://learning-web.rocks">Back to the root domain</a></p>
+
+    <!-- localStorage UI -->
     <label>localStorage:</label>
     <button id="refresh">Refresh</button>
-    <button id="clear" style="margin-right: 30px">Clear</button>
+    <button id="clear" style="margin-right: 20px">Clear</button>
     <label>postMessage:</label>
     <button id="setToken">Set token</button>
     <button id="getToken">Get token</button>
-
     <pre id="localStorageOutput"></pre>
+
+    <!-- Cookies UI -->
+    <label>Cookies:</label>
+    <button id="refreshCookies">Refresh</button>
+    <button id="clearCookies" style="margin-right: 20px">Clear</button>
+    <label>postMessage:</label>
+    <button id="setCookieToken">Set token</button>
+    <button id="getCookieToken">Get token</button>
+    <pre id="cookiesOutput"></pre>
 
     <iframe id="authBridge" src="https://auth-bridge.learning-web.rocks"></iframe>
 
     <!-- Common script -->
     <script>
+      // localStorage logic
       const refresh = document.getElementById('refresh');
       const clear = document.getElementById('clear');
       const localStorageOutput = document.getElementById('localStorageOutput');
@@ -57,7 +68,41 @@
       });
 
       displayLocalStorage();
+
+      // Cookies logic
+      const refreshCookies = document.getElementById('refreshCookies');
+      const clearCookies = document.getElementById('clearCookies');
+      const cookiesOutput = document.getElementById('cookiesOutput');
+
+      function getCookies() {
+        return document.cookie.split(';')
+          .map(cookie => cookie.trim())
+          .filter(cookie => cookie !== '');
+      }
+
+      function displayCookies() {
+        const cookies = getCookies();
+        const output = cookies.map(cookie => {
+          const [key, value] = cookie.split('=');
+          return `${key}: ${value}`;
+        });
+        cookiesOutput.innerText = output.join('\n');
+      }
+
+      refreshCookies.addEventListener('click', displayCookies);
+
+      clearCookies.addEventListener('click', function() {
+        const cookies = getCookies();
+        cookies.forEach(cookie => {
+          const cookieName = cookie.split('=')[0];
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        });
+        displayCookies();
+      });
+
+      displayCookies();
     </script>
+
     <!-- Site script -->
     <script>
       const authBridgeWindow = document.getElementById('authBridge').contentWindow;
@@ -77,10 +122,34 @@
         authBridgeWindow.postMessage({ type: 'GET_TOKEN' }, '*');
       });
 
+      document.getElementById('setCookieToken').addEventListener('click', function() {
+        const now = new Date();
+        const token = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+        
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + 1); // 1 day
+        document.cookie = `cookieToken=${token}; expires=${expirationDate.toUTCString()}; path=/`;
+        
+        displayCookies();
+        
+        authBridgeWindow.postMessage({ type: 'SET_COOKIE_TOKEN', token }, '*');
+      });
+
+      document.getElementById('getCookieToken').addEventListener('click', function() {
+        authBridgeWindow.postMessage({ type: 'GET_COOKIE_TOKEN' }, '*');
+      });
+
       window.addEventListener('message', function(event) {
-        if (event.data && event.data.type === 'TOKEN_RESPONSE') {
-          localStorage.setItem('token', event.data.token);
-          displayLocalStorage();
+        if (event.data) {
+          if (event.data.type === 'TOKEN_RESPONSE') {
+            localStorage.setItem('token', event.data.token);
+            displayLocalStorage();
+          } else if (event.data.type === 'COOKIE_TOKEN_RESPONSE') {
+            const expirationDate = new Date();
+            expirationDate.setDate(expirationDate.getDate() + 1); // 1 day
+            document.cookie = `cookieToken=${event.data.token}; expires=${expirationDate.toUTCString()}; path=/`;
+            displayCookies();
+          }
         }
       });
     </script>

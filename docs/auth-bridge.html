@@ -10,24 +10,39 @@
         padding: 10px;
         width: 450px;
       }
-      iframe {
-        width: 500px;
-        height: 250px;
-      }
       button {
-        margin-left: 10px;
+        margin-left: 5px;
+      }
+      section {
+        background-color: lavender;
+        padding: 10px;
+        display: block;
+        margin-bottom: 15px;
       }
     </style>
   </head>
   <body>
     <h2>Auth bridge (auth-bridge.learning-web.rocks)</h2>
+
+    <section>
+      <label>Storage Access API:</label>
+      <span id="storageStatus">Checking status...</span>
+    </section>
+
+    <!-- localStorage UI -->
     <label>localStorage:</label>
     <button id="refresh">Refresh</button>
     <button id="clear" style="margin-right: 30px">Clear</button>
-    <label>Storage Access API:</label>
-    <span id="storageStatus">Checking status...</span>
-
     <pre id="localStorageOutput"></pre>
+
+    <!-- Cookies UI -->
+    <label>Cookies:</label>
+    <button id="refreshCookies">Refresh</button>
+    <button id="clearCookies" style="margin-right: 20px">Clear</button>
+    <label>postMessage:</label>
+    <button id="setCookieToken">Set token</button>
+    <button id="getCookieToken">Get token</button>
+    <pre id="cookiesOutput"></pre>
 
     <!-- Common script -->
     <script>
@@ -53,6 +68,39 @@
       });
 
       displayLocalStorage();
+
+      // Cookies logic
+      const refreshCookies = document.getElementById('refreshCookies');
+      const clearCookies = document.getElementById('clearCookies');
+      const cookiesOutput = document.getElementById('cookiesOutput');
+
+      function getCookies() {
+        return document.cookie.split(';')
+          .map(cookie => cookie.trim())
+          .filter(cookie => cookie !== '');
+      }
+
+      function displayCookies() {
+        const cookies = getCookies();
+        const output = cookies.map(cookie => {
+          const [key, value] = cookie.split('=');
+          return `${key}: ${value}`;
+        });
+        cookiesOutput.innerText = output.join('\n');
+      }
+
+      refreshCookies.addEventListener('click', displayCookies);
+
+      clearCookies.addEventListener('click', function() {
+        const cookies = getCookies();
+        cookies.forEach(cookie => {
+          const cookieName = cookie.split('=')[0];
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        });
+        displayCookies();
+      });
+
+      displayCookies();
     </script>
 
     <!-- Auth bridge script -->
@@ -71,7 +119,6 @@
       async function requestAccessWithUserGesture() {
         try {
           await document.requestStorageAccess();
-          await checkStorageAccess();
         } catch (error) {
           storageStatus.innerHTML = `<span style="color: red">Access denied: ${error.message}</span>`;
         }
