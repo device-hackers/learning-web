@@ -140,8 +140,8 @@
         const token = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
         
         const expirationDate = new Date();
-        expirationDate.setDate(expirationDate.getDate() + 1); // 1 day
-        document.cookie = `cookieToken=${token}; expires=${expirationDate.toUTCString()}; path=/`;
+        expirationDate.setDate(expirationDate.getDate() + 60); // 2 months
+        document.cookie = `cookieToken=${token}; path=/; expires=${expirationDate.toUTCString()}`;
         
         displayCookies();
         
@@ -159,8 +159,8 @@
             displayLocalStorage();
           } else if (event.data.type === 'COOKIE_TOKEN_RESPONSE') {
             const expirationDate = new Date();
-            expirationDate.setDate(expirationDate.getDate() + 1); // 1 day
-            document.cookie = `cookieToken=${event.data.token}; expires=${expirationDate.toUTCString()}; path=/`;
+            expirationDate.setDate(expirationDate.getDate() + 60); // 2 months
+            document.cookie = `cookieToken=${event.data.token}; path=/; expires=${expirationDate.toUTCString()}`;
             displayCookies();
           }
         }
