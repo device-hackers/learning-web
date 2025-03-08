@@ -8,38 +8,49 @@
       pre {
         background-color: lightgray;
         padding: 10px;
-        width: 450px;
       }
       button {
         margin-left: 5px;
       }
       section {
-        background-color: lavender;
+        width: 600px;
         padding: 10px;
         display: block;
         margin-bottom: 15px;
+        background-color: #EEEEEE;
+      }
+      section.storageAccess {
+        background-color: lavender;
+      }
+      label {
+        font-weight: bold;
       }
     </style>
   </head>
   <body>
     <h2>Auth bridge (auth-bridge.learning-web.rocks)</h2>
 
-    <section>
+    <section class="storageAccess">
       <label>Storage Access API:</label>
       <span id="storageStatus">Checking status...</span>
+      <button onclick="requestAccessWithUserGesture()">Request access</button>
     </section>
 
     <!-- localStorage UI -->
-    <label>localStorage:</label>
-    <button id="refresh">Refresh</button>
-    <button id="clear" style="margin-right: 30px">Clear</button>
-    <pre id="localStorageOutput"></pre>
+    <section class="localStorage">
+      <label>localStorage:</label>
+      <button id="refresh">Refresh</button>
+      <button id="clear" style="margin-right: 30px">Clear</button>
+      <pre id="localStorageOutput"></pre>
+    </section>
 
     <!-- Cookies UI -->
-    <label>Cookies:</label>
-    <button id="refreshCookies">Refresh</button>
-    <button id="clearCookies" style="margin-right: 20px">Clear</button>
-    <pre id="cookiesOutput"></pre>
+    <section class="cookies">
+      <label>Cookies:</label>
+      <button id="refreshCookies">Refresh</button>
+      <button id="clearCookies" style="margin-right: 20px">Clear</button>
+      <pre id="cookiesOutput"></pre>
+    </section>
 
     <!-- Common script -->
     <script>
@@ -127,19 +138,19 @@
           await document.requestStorageAccess();
           await checkStorageAccess();
         } catch (error) {
-          storageStatus.innerHTML = `<span style="color: red">Access denied: ${error.message}</span>`;
+          storageStatus.innerHTML = `<span style="color: red">[Access denied: ${error.message}]</span>`;
         }
       }
       async function checkStorageAccess() {
         try {
           const hasStorageAccess = await document.hasStorageAccess();
           if (hasStorageAccess) {
-            storageStatus.innerHTML = '<span style="color: green">Access granted</span>';
+            storageStatus.innerHTML = '<span style="color: green">[Access granted]</span>';
           } else {
-            storageStatus.innerHTML = '<button onclick="requestAccessWithUserGesture()">Request access</button>';
+            storageStatus.innerHTML = '<span style="color: red">[Access not granted]</span>';
           }
         } catch (error) {
-          storageStatus.innerHTML = `<span style="color: red">Error: ${error.message}</span>`;
+          storageStatus.innerHTML = `<span style="color: red">[Error: ${error.message}]</span>`;
         }
       }
       checkStorageAccess();

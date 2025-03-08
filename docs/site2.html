@@ -8,14 +8,23 @@
       pre {
         background-color: lightgray;
         padding: 10px;
-        width: 450px;
       }
       iframe {
-        width: 500px;
-        height: 300px;
+        width: 640px;
+        height: 400px;
       }
       button {
         margin-left: 5px;
+      }
+      section {
+        width: 600px;
+        padding: 10px;
+        display: block;
+        margin-bottom: 15px;
+        background-color: #EEEEEE;
+      }
+      label {
+        font-weight: bold;
       }
     </style>
   </head>
@@ -24,22 +33,26 @@
     <p><a href="https://learning-web.rocks">Back to the root domain</a></p>
 
     <!-- localStorage UI -->
-    <label>localStorage:</label>
-    <button id="refresh">Refresh</button>
-    <button id="clear" style="margin-right: 20px">Clear</button>
-    <label>postMessage:</label>
-    <button id="setToken">Set token</button>
-    <button id="getToken">Get token</button>
-    <pre id="localStorageOutput"></pre>
+    <section>
+      <label>localStorage:</label>
+      <button id="refresh">Refresh</button>
+      <button id="clear" style="margin-right: 20px">Clear</button>
+      <label>postMessage:</label>
+      <button id="setToken">Set auth token</button>
+      <button id="getToken">Get auth token</button>
+      <pre id="localStorageOutput"></pre>
+    </section>
 
     <!-- Cookies UI -->
-    <label>Cookies:</label>
-    <button id="refreshCookies">Refresh</button>
-    <button id="clearCookies" style="margin-right: 20px">Clear</button>
-    <label>postMessage:</label>
-    <button id="setCookieToken">Set token</button>
-    <button id="getCookieToken">Get token</button>
-    <pre id="cookiesOutput"></pre>
+    <section>
+      <label>Cookies:</label>
+      <button id="refreshCookies">Refresh</button>
+      <button id="clearCookies" style="margin-right: 20px">Clear</button>
+      <label>postMessage:</label>
+      <button id="setCookieToken">Set auth token</button>
+      <button id="getCookieToken">Get auth token</button>
+      <pre id="cookiesOutput"></pre>
+    </section>
 
     <iframe id="authBridge" src="https://auth-bridge.learning-web.rocks"></iframe>
 
