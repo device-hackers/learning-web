@@ -39,9 +39,6 @@
     <label>Cookies:</label>
     <button id="refreshCookies">Refresh</button>
     <button id="clearCookies" style="margin-right: 20px">Clear</button>
-    <label>postMessage:</label>
-    <button id="setCookieToken">Set token</button>
-    <button id="getCookieToken">Get token</button>
     <pre id="cookiesOutput"></pre>
 
     <!-- Common script -->
@@ -112,8 +109,17 @@
         } else if (event.data && event.data.type === 'GET_TOKEN') {
           const token = localStorage.getItem('token') || '';
           event.source.postMessage({ type: 'TOKEN_RESPONSE', token }, '*');
+        } else if (event.data && event.data.type === 'SET_COOKIE_TOKEN') {
+          document.cookie = `cookieToken=${event.data.token}; path=/`;
+          displayCookies();
+        } else if (event.data && event.data.type === 'GET_COOKIE_TOKEN') {
+          const cookies = getCookies();
+          const cookieToken = cookies.find(c => c.startsWith('cookieToken='));
+          const token = cookieToken ? cookieToken.split('=')[1] : '';
+          event.source.postMessage({ type: 'COOKIE_TOKEN_RESPONSE', token }, '*');
         }
       });
+      
       const storageStatus = document.getElementById('storageStatus');
 
       async function requestAccessWithUserGesture() {
