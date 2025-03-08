@@ -125,6 +125,7 @@
       async function requestAccessWithUserGesture() {
         try {
           await document.requestStorageAccess();
+          await checkStorageAccess();
         } catch (error) {
           storageStatus.innerHTML = `<span style="color: red">Access denied: ${error.message}</span>`;
         }
