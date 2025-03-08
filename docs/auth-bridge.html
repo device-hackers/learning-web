@@ -121,7 +121,9 @@
           const token = localStorage.getItem('token') || '';
           event.source.postMessage({ type: 'TOKEN_RESPONSE', token }, '*');
         } else if (event.data && event.data.type === 'SET_COOKIE_TOKEN') {
-          document.cookie = `cookieToken=${event.data.token}; path=/`;
+          const expirationDate = new Date();
+          expirationDate.setDate(expirationDate.getDate() + 60);
+          document.cookie = `cookieToken=${event.data.token}; path=/; expires=${expirationDate.toUTCString()}`;
           displayCookies();
         } else if (event.data && event.data.type === 'GET_COOKIE_TOKEN') {
           const cookies = getCookies();
