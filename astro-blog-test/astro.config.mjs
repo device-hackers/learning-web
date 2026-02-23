@@ -1,5 +1,15 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import unlessSupportsDirective from './src/integrations/astro-css-directives/register';
 
-// https://astro.build/config
-export default defineConfig({});
+import react from '@astrojs/react';
+
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  integrations: [react(), unlessSupportsDirective()],
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});

@@ -1,17 +1,16 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
+import Carousel from '@/components/Carousel/Carousel.astro';
 ---
+<Layout title="Home">
+  <main class="container mx-auto px-4 py-8 space-y-12">
+    <!-- Carousel with 4s autoplay -->
+    <Carousel autoplay={4000} />
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+    <!-- Carousel without autoplay -->
+    <!-- <Carousel /> -->
+
+    <!-- Custom items -->
+    <!-- <Carousel autoplay={2000} items={['A', 'B', 'C', 'D']} /> -->
+  </main>
+</Layout>

@@ -1,0 +1,33 @@
+---
+import '../styles/global.css';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{Astro.props.title}</title>
+  </head>
+  <body>
+    <slot />
+    <script>
+      import { initCarouselAutoplay } from '@/components/Carousel/CarouselAutoplay.js';
+
+      function autoInit() {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => initCarouselAutoplay());
+        } else {
+          initCarouselAutoplay();
+        }
+      }
+
+      // Only run if CSS scroll-button is supported (CSS-only carousels). React carousels handle their own autoplay.
+      if (CSS.supports('selector(::scroll-button(left))')) {
+        autoInit();
+      }
+    </script>
+  </body>
+</html>
