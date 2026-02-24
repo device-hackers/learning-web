@@ -11,7 +11,8 @@ const { id, autoplay, items = ['1', '2', '3', '4', '5', '6'] } = Astro.props;
 const normalizedId = id.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
 const carouselAnchor = `--css-carousel-${normalizedId}`;
 ---
-<!-- <div
+
+<div
   id={id}
   class:list={[
     'carousel relative flex overflow-x-auto scroll-smooth snap-x snap-mandatory pt-4',
@@ -35,17 +36,17 @@ const carouselAnchor = `--css-carousel-${normalizedId}`;
       </div>
     </div>
   ))}
-</div> -->
+</div>
 
 <div class="react-carousel-fallback">
   <CarouselReact
     items={items}
     autoplay={autoplay}
-    client:load
+    client:unless-supports="selector(::scroll-button(left))"
   />
 </div>
 
-<!-- <style>
+<style>
   /* CSS-only Scroll Buttons (Chrome 135+) */
   @supports selector(::scroll-button(left)) {
     .carousel {
@@ -147,4 +148,4 @@ const carouselAnchor = `--css-carousel-${normalizedId}`;
       display: block;
     }
   }
-</style> -->
+</style>
