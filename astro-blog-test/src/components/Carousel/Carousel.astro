@@ -15,7 +15,7 @@ const carouselAnchor = `--css-carousel-${normalizedId}`;
 <div
   id={id}
   class:list={[
-    'carousel relative flex overflow-x-auto scroll-smooth snap-x snap-mandatory py-4',
+    'carousel relative flex overflow-x-auto scroll-smooth snap-x snap-mandatory pt-4',
     '-ml-2 md:-ml-4',
   ]}
   style={`--carousel-anchor: ${carouselAnchor};`}
@@ -50,6 +50,7 @@ const carouselAnchor = `--css-carousel-${normalizedId}`;
   /* CSS-only Scroll Buttons (Chrome 135+) */
   @supports selector(::scroll-button(left)) {
     .carousel {
+      --marker-offset-y: -2.25rem;
       scroll-marker-group: after;
       scrollbar-width: none;
       -ms-overflow-style: none;
@@ -127,7 +128,8 @@ const carouselAnchor = `--css-carousel-${normalizedId}`;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      margin-top: 1rem;
+      margin-top: 0.25rem;
+      transform: translateY(var(--marker-offset-y));
     }
 
     /* Hide React fallback when CSS works */
