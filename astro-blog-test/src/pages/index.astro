@@ -4,13 +4,7 @@ import Carousel from '@/components/Carousel/Carousel.astro';
 ---
 <Layout title="Home">
   <main class="container mx-auto px-4 py-8 space-y-12">
-    <!-- Carousel with 4s autoplay -->
-    <Carousel autoplay={4000} />
-
-    <!-- Carousel without autoplay -->
-    <!-- <Carousel /> -->
-
-    <!-- Custom items -->
-    <!-- <Carousel autoplay={2000} items={['A', 'B', 'C', 'D']} /> -->
+    <Carousel id="carousel-home-1" items={['1', '2', '3', '4', '5', '6']} autoplay={4000} />
+    <Carousel id="carousel-home-2" items={['A', 'B', 'C', 'D']} />
   </main>
 </Layout>

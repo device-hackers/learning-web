@@ -2,18 +2,23 @@
 import CarouselReact from './CarouselReact.jsx';
 
 interface Props {
+  id: string;
   autoplay?: number;
   items?: string[];
 }
 
-const { autoplay, items = ['1', '2', '3', '4', '5', '6'] } = Astro.props;
+const { id, autoplay, items = ['1', '2', '3', '4', '5', '6'] } = Astro.props;
+const normalizedId = id.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+const carouselAnchor = `--css-carousel-${normalizedId}`;
 ---
 
 <div
+  id={id}
   class:list={[
     'carousel relative flex overflow-x-auto scroll-smooth snap-x snap-mandatory py-4',
     '-ml-2 md:-ml-4',
   ]}
+  style={`--carousel-anchor: ${carouselAnchor};`}
   data-carousel
   data-autoplay={autoplay}
 >
@@ -48,7 +53,7 @@ const { autoplay, items = ['1', '2', '3', '4', '5', '6'] } = Astro.props;
       scroll-marker-group: after;
       scrollbar-width: none;
       -ms-overflow-style: none;
-      anchor-name: --css-carousel;
+      anchor-name: var(--carousel-anchor);
     }
 
     .carousel::-webkit-scrollbar {
@@ -59,7 +64,7 @@ const { autoplay, items = ['1', '2', '3', '4', '5', '6'] } = Astro.props;
     .carousel::scroll-button(right) {
       content: '←' / 'Previous slide';
       position: fixed;
-      position-anchor: --css-carousel;
+      position-anchor: var(--carousel-anchor);
       position-area: center left;
       width: 2rem;
       height: 2rem;
