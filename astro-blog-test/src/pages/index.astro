@@ -1,11 +1,13 @@
 ---
 import TailwindLayout from '../layouts/TailwindLayout.astro';
 import Carousel from '@/components/Carousel/Carousel.astro';
+import Greeting from '@/components/Greeting';
 
 const pageTitle = "Home";
 ---
 <TailwindLayout title={pageTitle}>
   <main class="container mx-auto px-4 py-8 space-y-12">
+    <Greeting client:load messages={["Hi", "Hello", "Howdy", "Hey there"]} />
     <Carousel id="carousel-home-1" items={['1', '2', '3', '4', '5', '6']} autoplay={4000} />
     <Carousel id="carousel-home-2" items={['A', 'B', 'C', 'D']} />
   </main>
