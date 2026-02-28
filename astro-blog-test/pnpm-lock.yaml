@@ -21,8 +21,8 @@ dependencies:
     specifier: ^19.2.3
     version: 19.2.3(@types/react@19.2.14)
   astro:
-    specifier: ^5.17.1
-    version: 5.17.3(typescript@5.9.3)
+    specifier: ^5.18.0
+    version: 5.18.0(typescript@5.9.3)
   class-variance-authority:
     specifier: ^0.7.1
     version: 0.7.1
@@ -3384,8 +3384,8 @@ packages:
       tslib: 2.8.1
     dev: true
 
-  /astro@5.17.3(typescript@5.9.3):
-    resolution: {integrity: sha512-69dcfPe8LsHzklwj+hl+vunWUbpMB6pmg35mACjetxbJeUNNys90JaBM8ZiwsPK689SAj/4Zqb1ayaANls9/MA==}
+  /astro@5.18.0(typescript@5.9.3):
+    resolution: {integrity: sha512-CHiohwJIS4L0G6/IzE1Fx3dgWqXBCXus/od0eGUfxrZJD2um2pE7ehclMmgL/fXqbU7NfE1Ze2pq34h2QaA6iQ==}
     engines: {node: 18.20.8 || ^20.3.0 || >=22.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
     dependencies:
