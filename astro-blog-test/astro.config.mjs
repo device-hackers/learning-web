@@ -6,7 +6,7 @@ import unlessSupportsDirective from './src/integrations/astro-css-directives/reg
 
 export default defineConfig({
   integrations: [react(), unlessSupportsDirective()],
-
+  site: "https://example.com",
   vite: {
     plugins: [tailwindcss()],
   },
