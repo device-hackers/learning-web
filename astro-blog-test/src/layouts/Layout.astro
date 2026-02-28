@@ -1,5 +1,7 @@
 ---
+import Footer from '@/components/Footer.astro';
 import '../styles/global.css';
+import Navigation from '@/components/Navigation.astro';
 ---
 <!doctype html>
 <html lang="en">
@@ -12,6 +14,7 @@ import '../styles/global.css';
     <title>{Astro.props.title}</title>
   </head>
   <body>
+    <Navigation />
     <slot />
     <script>
       import { initCarouselAutoplay } from '@/components/Carousel/CarouselAutoplay.js';
@@ -29,5 +32,6 @@ import '../styles/global.css';
         autoInit();
       }
     </script>
+    <Footer />
   </body>
 </html>
