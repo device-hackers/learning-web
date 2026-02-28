@@ -1,10 +1,10 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import TailwindLayout from '../layouts/TailwindLayout.astro';
 import Carousel from '@/components/Carousel/Carousel.astro';
 
 const pageTitle = "Home";
 ---
-<Layout title={pageTitle}>
+<TailwindLayout title={pageTitle}>
   <h1>{pageTitle}</h1>
   <p>This is where I will post about my journey learning Astro.</p>
   <ul>
@@ -16,4 +16,4 @@ const pageTitle = "Home";
     <Carousel id="carousel-home-1" items={['1', '2', '3', '4', '5', '6']} autoplay={4000} />
     <Carousel id="carousel-home-2" items={['A', 'B', 'C', 'D']} />
   </main>
-</Layout>
+</TailwindLayout>
