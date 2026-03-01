@@ -5,7 +5,6 @@ import { defineConfig } from 'astro/config';
 import unlessSupportsDirective from './src/integrations/astro-css-directives/register';
 
 export default defineConfig({
-  output: 'server',
   integrations: [react(), unlessSupportsDirective()],
   site: "https://example.com",
   vite: {
