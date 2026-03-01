@@ -15,7 +15,5 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
-  adapter: netlify({
-    cacheOnDemandPages: true,
-  }),
+  adapter: netlify(),
 });
