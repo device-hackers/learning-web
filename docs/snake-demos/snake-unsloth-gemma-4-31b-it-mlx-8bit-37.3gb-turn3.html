@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>SPECTRA SNAKE FIX</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: #050505; 
+            font-family: 'Orbitron', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh;
+        }
+        canvas { 
+            box-shadow: 0 0 50px rgba(0,0,0,0.8); 
+            border: 3px solid #222;
+            border-radius: 8px;
+            background: #000;
+        }
+        #ui {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            color: #fff;
+            font-size: 24px;
+            letter-spacing: 2px;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        #msg {
+            position: absolute;
+            color: white;
+            text-align: center;
+            background: rgba(0,0,0,0.9);
+            padding: 30px 60px;
+            border-radius: 15px;
+            border: 2px solid #444;
+            cursor: pointer;
+            z-index: 100;
+            transition: 0.3s;
+        }
+        #msg:hover { background: rgba(20,20,20,0.95); border-color: #0ff; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="ui">SCORE: <span id="score">0</span></div>
+    
+    <div id="msg" onclick="resetGame()">
+        <h1 style="margin-top:0; color:#0ff;">SPECTRA SNAKE</h1>
+        <p>WASD або Стрілки для руху</p>
+        <p style="color: #888;">Стіни тепер пропускні.</p>
+        <h2 style="color: #fff; animation: blink 1s infinite;">КЛІКНИЙ, ЩОБ ПОЧАТИ</h2>
+    </div>
+
+    <canvas id="game"></canvas>
+
+    <style>
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const msgElement = document.getElementById('msg');
+
+        const GRID_SIZE = 20;
+        let TILE_COUNT;
+        let snake, food, dx, dy, nextDx, nextDy, score, colorHue;
+        let isPaused = true;
+        let currentSpeed = 150; // початкова затримка мс
+
+        function initCanvas() {
+            const size = Math.min(window.innerWidth, window.innerHeight) * 0.85;
+            canvas.width = Math.floor(size / GRID_SIZE) * GRID_SIZE;
+            canvas.height = Math.floor(size / GRID_SIZE) * GRID_SIZE;
+            TILE_COUNT = canvas.width / GRID_SIZE;
+        }
+
+        function spawnFood() {
+            return {
+                x: Math.floor(Math.random() * TILE_COUNT),
+                y: Math.floor(Math.random() * TILE_COUNT),
+                hue: Math.floor(Math.random() * 360)
+            };
+        }
+
+        function resetGame() {
+            snake = [
+                {x: 10, y: 10}, 
+                {x: 10, y: 11}, 
+                {x: 10, y: 12}
+            ];
+            food = spawnFood();
+            dx = 0; dy = -1;
+            nextDx = 0; nextDy = -1;
+            score = 0;
+            currentSpeed = 150;
+            colorHue = 180;
+            scoreElement.innerText = score;
+            isPaused = false;
+            msgElement.style.display = 'none';
+        }
+
+        window.addEventListener('keydown', e => {
+            switch(e.key) {
+                case 'ArrowUp':    case 'w': if (dy === 0) { nextDx = 0; nextDy = -1; } break;
+                case 'ArrowDown':  case 's': if (dy === 0) { nextDx = 0; nextDy = 1; } break;
+                case 'ArrowLeft':  case 'a': if (dx === 0) { nextDx = -1; nextDy = 0; } break;
+                case 'ArrowRight': case 'd': if (dx === 0) { nextDx = 1; nextDy = 0; } break;
+            }
+        });
+
+        function update() {
+            if (isPaused) return;
+
+            dx = nextDx;
+            dy = nextDy;
+
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            // Проходження крізь стіни
+            if (head.x < 0) head.x = TILE_COUNT - 1;
+            if (head.x >= TILE_COUNT) head.x = 0;
+            if (head.y < 0) head.y = TILE_COUNT - 1;
+            if (head.y >= TILE_COUNT) head.y = 0;
+
+            // Перевірка на самопоїдання
+            for (let i = 0; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    gameOver();
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                scoreElement.innerText = score;
+                colorHue = food.hue;
+                food = spawnFood();
+                // Прискоримо гру (мінімальний ліміт 60мс)
+                if (currentSpeed > 60) currentSpeed -= 2;
+            } else {
+                snake.pop();
+            }
+        }
+
+        function draw() {
+            // Очищення з ефектом шлейфу
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (isPaused) return; // Не малюємо ігровий контент, поки пауза
+
+            // Межі поля
+            ctx.strokeStyle = `hsla(${colorHue}, 100%, 50%, 0.3)`;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+            // Малюємо їжу
+            if (food) {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = `hsl(${food.hue}, 100%, 50%)`;
+                ctx.fillStyle = `hsl(${food.hue}, 100%, 50%)`;
+                ctx.beginPath();
+                ctx.arc(
+                    food.x * GRID_SIZE + GRID_SIZE/2, 
+                    food.y * GRID_SIZE + GRID_SIZE/2, 
+                    GRID_SIZE/3, 0, Math.PI * 2
+                );
+                ctx.fill();
+            }
+
+            // Малюємо змійку
+            snake.forEach((seg, i) => {
+                const alpha = 1 - (i / snake.length * 0.6);
+                ctx.fillStyle = `hsla(${colorHue}, 100%, 50%, ${alpha})`;
+                ctx.shadowBlur = i === 0 ? 15 : 0;
+                ctx.shadowColor = `hsl(${colorHue}, 100%, 50%)`;
+                
+                const p = i === 0 ? 1 : 2;
+                ctx.fillRect(
+                    seg.x * GRID_SIZE + p, 
+                    seg.y * GRID_SIZE + p, 
+                    GRID_SIZE - p*2, 
+                    GRID_SIZE - p*2
+                );
+            });
+            ctx.shadowBlur = 0;
+        }
+
+        function gameOver() {
+            isPaused = true;
+            msgElement.style.display = 'block';
+            msgElement.innerHTML = `<h1 style="color:#ff4444;">СИСТЕМА ПЕРЕГРІТА</h1><p>Ваш рахунок: ${score}</p><h2 style="color: #fff;">КЛІКНИЙ, ЩОБ ПЕРЕЗАВАНТАЖИТИ</h2>`;
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            setTimeout(gameLoop, currentSpeed);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        gameLoop(); // Тепер безпечно, бо draw() та update() мають перевірку isPaused
+    </script>
+</body>
+</html>
