@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#04050e">
+<title>NEON VIPER — неонова змійка</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#04050e;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:#dff7ff}
+canvas{position:fixed;inset:0;display:block;touch-action:none;z-index:1}
+.vignette{position:fixed;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,10,0) 55%,rgba(2,3,12,.85) 100%);pointer-events:none;z-index:2}
+
+.hud{position:fixed;inset:0;pointer-events:none;z-index:3}
+.hud .panel{position:absolute;background:rgba(8,12,28,.55);border:1px solid rgba(0,255,230,.35);border-radius:10px;padding:8px 14px;box-shadow:0 0 18px rgba(0,255,230,.15),inset 0 0 12px rgba(0,255,230,.08);backdrop-filter:blur(4px)}
+.panel .label{font-size:9px;letter-spacing:3px;color:#6ff2ff;opacity:.8}
+.panel .val{font-size:22px;font-weight:700;letter-spacing:1px;color:#fff;text-shadow:0 0 12px #00e6ff}
+#scorePanel{top:16px;left:16px}
+#bestPanel{top:16px;left:50%;transform:translateX(-50%);text-align:center}
+#levelPanel{top:16px;right:16px;text-align:right}
+#comboBox{position:absolute;top:74px;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .2s}
+#comboBox.on{opacity:1}
+#comboTxt{font-size:18px;font-weight:800;color:#ffd700;text-shadow:0 0 14px #ffd700;letter-spacing:2px}
+#comboBar{width:120px;height:4px;margin:4px auto 0;background:rgba(255,215,0,.2);border-radius:2px;overflow:hidden}
+#comboBar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ffd700,#ff8c00);box-shadow:0 0 10px #ffd700}
+#statusChips{position:absolute;top:118px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.chip{background:rgba(8,12,28,.6);border:1px solid rgba(0,255,230,.4);border-radius:20px;padding:4px 12px;font-size:12px;color:#6ff2ff;box-shadow:0 0 12px rgba(0,255,230,.2)}
+
+.ctrl{position:fixed;bottom:16px;right:16px;z-index:6;display:flex;gap:10px}
+.icon{width:44px;height:44px;border-radius:12px;background:rgba(8,12,28,.6);border:1px solid rgba(0,255,230,.4);color:#6ff2ff;font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:.15s}
+.icon:hover{box-shadow:0 0 16px rgba(0,255,230,.5)}
+
+.overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;background:rgba(4,5,14,.74);backdrop-filter:blur(8px);transition:opacity .4s;text-align:center;padding:20px}
+.overlay.hidden{opacity:0;pointer-events:none}
+.title{font-size:min(11vw,72px);font-weight:900;letter-spacing:.14em;color:#fff;text-shadow:0 0 20px #00e6ff,0 0 60px #0088ff,0 0 100px #00e6ff;animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.75}}
+.title span{color:#00ffd0}
+.title.small{font-size:min(9vw,46px);animation:none;text-shadow:0 0 18px #00e6ff,0 0 44px #0088ff}
+.sub{color:#6ff2ff;letter-spacing:.28em;font-size:12px;margin:8px 0 26px}
+.howto{background:rgba(8,12,28,.5);border:1px solid rgba(0,255,230,.25);border-radius:14px;padding:16px 22px;margin-bottom:24px;box-shadow:0 0 24px rgba(0,255,230,.08)}
+.howto .row{font-size:14px;margin:5px 0;color:#bff3ff}
+.howto .k{display:inline-block;background:rgba(0,230,255,.12);border:1px solid rgba(0,230,255,.4);border-radius:6px;padding:1px 8px;margin:0 2px;color:#7fffe0;font-family:Consolas,monospace;font-size:12px}
+.btn{margin-top:6px;padding:14px 42px;font-size:18px;font-weight:800;letter-spacing:.18em;color:#fff;background:rgba(0,230,255,.1);border:2px solid #00e6ff;border-radius:12px;cursor:pointer;text-shadow:0 0 10px #00e6ff;box-shadow:0 0 22px rgba(0,230,255,.35),inset 0 0 18px rgba(0,230,255,.15);transition:.2s}
+.btn:hover{background:rgba(0,230,255,.28);box-shadow:0 0 34px rgba(0,230,255,.7),inset 0 0 24px rgba(0,230,255,.3);transform:scale(1.04)}
+.hint{margin-top:14px;font-size:11px;letter-spacing:.2em;color:#6ff2ff;opacity:.6}
+.stats{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:22px 0}
+.stat{min-width:84px;background:rgba(8,12,28,.55);border:1px solid rgba(255,77,109,.35);border-radius:12px;padding:10px 14px;box-shadow:0 0 16px rgba(255,77,109,.12)}
+.stat .sv{font-size:24px;font-weight:800;color:#fff;text-shadow:0 0 12px #ff4d6d}
+.stat .sl{font-size:9px;letter-spacing:2px;color:#ff8fa3;margin-top:2px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="vignette"></div>
+
+<div class="hud">
+  <div class="panel" id="scorePanel"><div class="label">РАХУНОК</div><div class="val" id="scoreVal">0</div></div>
+  <div class="panel" id="bestPanel"><div class="label">РЕКОРД</div><div class="val" id="bestVal">0</div></div>
+  <div class="panel" id="levelPanel"><div class="label">РІВЕНЬ</div><div class="val" id="levelVal">1</div></div>
+  <div id="comboBox"><div id="comboTxt">x2 🔥</div><div id="comboBar"><i></i></div></div>
+  <div id="statusChips"></div>
+</div>
+
+<div class="ctrl">
+  <button class="icon" id="pauseBtn">⏸</button>
+  <button class="icon" id="soundBtn">🔊</button>
+</div>
+
+<div class="overlay" id="menu">
+  <div class="title">NEON <span>VIPER</span></div>
+  <div class="sub">НЕОНОВА ЗМІЙКА · КВАНТОВЕ ВИДАННЯ</div>
+  <div class="howto">
+    <div class="row"><span class="k">↑ ← ↓ →</span> або <span class="k">WASD</span> — рух</div>
+    <div class="row"><span class="k">P</span> пауза · <span class="k">M</span> звук · <span class="k">R</span> заново</div>
+    <div class="row"><span class="k">📱</span> свайп на телефоні</div>
+    <div class="row"><span class="k">🟢 🟡 ⭐</span> їжа: +1 · +3 · +5</div>
+    <div class="row"><span class="k">🔴</span> токсин: −2 та скорочення</div>
+    <div class="row"><span class="k">🌀</span> портали телепортують</div>
+    <div class="row"><span class="k">⛨ ⚡ ⏳</span> бонуси: щит · даш · уповільнення часу</div>
+    <div class="row"><span class="k">🔥</span> комбо за швидке поїдання</div>
+  </div>
+  <button class="btn" id="startBtn">▶ СТАРТ</button>
+  <div class="hint">ENTER · АБО ТОРКНИСЬ ЕКРАНА</div>
+</div>
+
+<div class="overlay hidden" id="pause">
+  <div class="title small">ПАУЗА</div>
+  <div class="sub" style="margin-top:14px">ЗМІЙКА ВІДПОЧИВАЄ...</div>
+  <button class="btn" id="resumeBtn">▶ ПРОДОВЖИТИ</button>
+  <div class="hint">P / SPACE — ПРОДОВЖИТИ</div>
+</div>
+
+<div class="overlay hidden" id="over">
+  <div class="title small" style="color:#ff4d6d;text-shadow:0 0 18px #ff4d6d,0 0 44px #ff1a4a">ГРА ЗАВЕРШЕНА</div>
+  <div class="stats">
+    <div class="stat"><div class="sv" id="overScore">0</div><div class="sl">РАХУНОК</div></div>
+    <div class="stat"><div class="sv" id="overBest">0</div><div class="sl">РЕКОРД</div></div>
+    <div class="stat"><div class="sv" id="overLevel">1</div><div class="sl">РІВЕНЬ</div></div>
+    <div class="stat"><div class="sv" id="overEaten">0</div><div class="sl">З'ЇДЕНО</div></div>
+    <div class="stat"><div class="sv" id="overCombo">0</div><div class="sl">МАКС КОМБО</div></div>
+  </div>
+  <button class="btn" id="againBtn">⟳ ЗАНОВО</button>
+  <div class="hint">ENTER — ЩЕ РАЗ · R — РЕСТАРТ</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================== КОНСТАНТИ ================== */
+const COLS = 26, ROWS = 20;
+const COMBO_WINDOW = 3.0;
+const BASE_SPEED = 5.5, SPEED_PER_LEVEL = 0.55, MAX_SPEED = 13;
+const START_LEN = 4;
+
+/* ================== DOM ================== */
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const $ = id => document.getElementById(id);
+const scoreVal = $('scoreVal'), bestVal = $('bestVal'), levelVal = $('levelVal');
+const comboBox = $('comboBox'), comboTxt = $('comboTxt'), comboBarInner = $('comboBar').querySelector('i');
+const chips = $('statusChips');
+const menu = $('menu'), over = $('over'), pause = $('pause');
+const overScore = $('overScore'), overBest = $('overBest'), overLevel = $('overLevel'), overEaten = $('overEaten'), overCombo = $('overCombo');
+const startBtn = $('startBtn'), resumeBtn = $('resumeBtn'), againBtn = $('againBtn');
+const pauseBtn = $('pauseBtn'), soundBtn = $('soundBtn');
+
+let w = 0, h = 0, cell = 0, ox = 0, oy = 0;
+
+/* ================== СТАН ================== */
+let state = 'menu';
+let snake = [], prevSnake = [], dir = {x:1,y:0}, dirQueue = [], moveAccum = 0, grow = 0;
+let foods = [], obstacles = [], portals = [], powerups = [];
+let particles = [], texts = [], shocks = [], ghosts = [];
+let score = 0, best = 0, level = 1, foodsEaten = 0, combo = 0, comboT = 0, comboMax = 0, levelUpAt = 6;
+let speed = BASE_SPEED, timeScale = 1, shake = 0, flash = 0, bodyHue = 190;
+let shield = false, dashT = 0, slowT = 0, powerupT = 10, portalCd = 0;
+let deathTimer = 0, levelHue = 180, now = 0;
+let stars = [], lastTime = performance.now();
+let demoSnake = [], demoDir = {x:1,y:0}, demoAcc = 0;
+
+best = +(localStorage.getItem('neonViperBest') || 0);
+bestVal.textContent = best;
+
+/* ================== АУДІО ================== */
+let ac = null, master = null, musicTimer = null, nextNote = 0, beat = 0, musicOn = true;
+const scales = [[110,124,147,165,196],[110,147,165,196,220],[147,165,196,220,247],[165,196,220,247,294]];
+
+function initAudio(){
+  if(ac) return;
+  try{
+    ac = new (window.AudioContext || window.webkitAudioContext)();
+    master = ac.createGain(); master.gain.value = 0.5; master.connect(ac.destination);
+    nextNote = ac.currentTime + 0.15; beat = 0;
+    musicTimer = setInterval(musicSched, 40);
+  }catch(e){}
+}
+function tone(freq, when, dur, type, vol){
+  if(!ac || vol <= 0) return;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, when);
+  g.gain.setValueAtTime(vol, when);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+  o.connect(g); g.connect(master);
+  o.start(when); o.stop(when + dur + 0.02);
+}
+function sfx(freq, dur, type, vol, slide){
+  if(!ac || !master) return;
+  const t = ac.currentTime;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq * slide), t + dur);
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(master);
+  o.start(t); o.stop(t + dur);
+}
+function noise(dur, vol, freq){
+  if(!ac || !master) return;
+  const t = ac.currentTime, len = Math.max(1, Math.floor(ac.sampleRate * dur));
+  const buf = ac.createBuffer(1, len, ac.sampleRate);
+  const d = buf.getChannelData(0);
+  for(let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = 0.8;
+  const g = ac.createGain(); g.gain.value = vol;
+  src.connect(f); f.connect(g); g.connect(master);
+  src.start(t);
+}
+function musicSched(){
+  if(!ac || !musicOn) return;
+  while(nextNote < ac.currentTime + 0.25){
+    scheduleMusic(nextNote);
+    nextNote += 0.6; beat++;
+  }
+}
+function scheduleMusic(t){
+  const sc = scales[(level - 1) % scales.length];
+  const root = sc[0];
+  if(beat % 4 === 0) tone(root, t, 0.55, 'triangle', 0.10);
+  if(beat % 4 === 2) tone(root * 1.5, t, 0.45, 'sine', 0.07);
+  tone(sc[(beat >> 1) % 5] * 2, t, 0.28, 'sine', 0.045);
+  if(beat % 2 === 1) noise(0.05, 0.016, 8000);
+}
+function sEat(n){ sfx(340 * Math.pow(1.06, n), 0.12, 'square', 0.16, 1.35); setTimeout(function(){ sfx(340 * Math.pow(1.06, n) * 1.5, 0.1, 'square', 0.12, 1.3); }, 60); }
+function sToxic(){ sfx(200, 0.35, 'sawtooth', 0.25, 0.35); noise(0.3, 0.14, 400); }
+function sDeath(){ sfx(320, 0.9, 'sawtooth', 0.3, 0.06); noise(0.7, 0.22, 300); }
+function sPortal(){ sfx(140, 0.5, 'sine', 0.2, 2.2); sfx(560, 0.4, 'sine', 0.12, 0.4); }
+function sPower(){ [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){ sfx(f, 0.22, 'triangle', 0.16, 1); }, i * 70); }); }
+function sShield(){ sfx(180, 0.3, 'square', 0.2, 1.6); }
+function sLevel(){ [220,330,440,550].forEach(function(f,i){ setTimeout(function(){ sfx(f, 0.4, 'triangle', 0.16, 1); }, i * 90); }); }
+
+/* ================== УТИЛІТИ ================== */
+const rnd = (a,b) => a + Math.random() * (b - a);
+const irnd = (a,b) => Math.floor(rnd(a,b));
+const lerp = (a,b,t) => a + (b - a) * t;
+const gx = x => ox + x * cell;
+const gy = y => oy + y * cell;
+
+function freeCell(){
+  for(let k = 0; k < 400; k++){
+    const x = irnd(0, COLS), y = irnd(0, ROWS);
+    if(snake.some(s => s.x === x && s.y === y)) continue;
+    if(obstacles.some(o => o.x === x && o.y === y)) continue;
+    if(portals.some(p => p.x === x && p.y === y)) continue;
+    if(foods.some(f => f.x === x && f.y === y)) continue;
+    if(powerups.some(p => p.x === x && p.y === y)) continue;
+    return {x: x, y: y};
+  }
+  return null;
+}
+
+/* ================== ЇЖА ================== */
+function makeFood(){
+  const t = Math.random();
+  const toxicCh = level >= 2 ? 0.12 : 0;
+  let type = 'orb';
+  if(t < 0.05) type = 'star';
+  else if(t < 0.20) type = 'gold';
+  else if(t < 0.20 + toxicCh) type = 'toxic';
+  const conf = {
+    orb:   {val:1, grow:1, hue:135, label:'+'},
+    gold:  {val:3, grow:2, hue:50,  label:'+3'},
+    star:  {val:5, grow:3, hue:190, label:'+5'},
+    toxic: {val:-2,grow:-1,hue:345, label:'-2'}
+  }[type];
+  return {x:0, y:0, type:type, val:conf.val, grow:conf.grow, hue:conf.hue, age:0};
+}
+function spawnFood(){
+  const f = makeFood(), c = freeCell();
+  if(!c) return;
+  f.x = c.x; f.y = c.y; foods.push(f);
+}
+
+/* ================== ПОРТАЛИ / ПЕРЕШКОДИ / БОНУСИ ================== */
+function spawnPortals(){
+  for(let k = 0; k < 30; k++){
+    const a = freeCell(), b = freeCell();
+    if(a && b && Math.abs(a.x - b.x) + Math.abs(a.y - b.y) >= 10){
+      portals = [{x:a.x, y:a.y, hue:265}, {x:b.x, y:b.y, hue:285}];
+      return;
+    }
+  }
+}
+function spawnObstacle(){
+  const c = freeCell();
+  if(!c) return;
+  obstacles.push({x:c.x, y:c.y, seed:Math.random() * 10});
+}
+function spawnPowerup(){
+  const c = freeCell();
+  if(!c) return;
+  const types = ['shield','dash','slow'];
+  powerups.push({x:c.x, y:c.y, type:types[irnd(0,3)], age:0});
+}
+
+/* ================== ЕФЕКТИ ================== */
+function burst(x, y, n, hue, spd, sat){
+  sat = sat === undefined ? 100 : sat;
+  const X = gx(x) + cell / 2, Y = gy(y) + cell / 2;
+  for(let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2, v = spd * (0.3 + Math.random() * 0.7);
+    particles.push({x:X, y:Y, vx:Math.cos(a) * v, vy:Math.sin(a) * v, life:0, ttl:0.5 + Math.random() * 0.6, hue:hue, sat:sat, s:1.5 + Math.random() * 2.5, drag:3});
+  }
+}
+function addText(x, y, txt, col){
+  texts.push({x:gx(x) + cell / 2, y:gy(y) + cell / 2, txt:txt, col:col, life:0, ttl:1.0});
+}
+function addShock(x, y, color){
+  shocks.push({x:gx(x) + cell / 2, y:gy(y) + cell / 2, r:cell * 0.4, life:0, ttl:0.7, color:color});
+}
+function segHue(i){
+  const n = snake.length;
+  const t = n > 1 ? i / (n - 1) : 0;
+  let hue = bodyHue - t * 42;
+  if(combo >= 5) hue = now * 180 + i * 20;   /* КОМБО-ЛИХОРАДКА */
+  hue += Math.sin(now * 6 - i * 0.7) * 10;
+  return (hue % 360 + 360) % 360;
+}
+
+/* ================== ІНІЦІАЛІЗАЦІЯ ================== */
+function resetGame(){
+  const cx = Math.floor(COLS / 2), cy = Math.floor(ROWS / 2);
+  snake = [];
+  for(let i = 0; i < START_LEN; i++) snake.push({x:cx - i, y:cy});
+  prevSnake = snake.map(p => ({x:p.x, y:p.y}));
+  dir = {x:1, y:0}; dirQueue = [];
+  foods = []; obstacles = []; portals = []; powerups = [];
+  particles = []; texts = []; shocks = []; ghosts = [];
+  score = 0; foodsEaten = 0; level = 1; combo = 0; comboT = 0; comboMax = 0; levelUpAt = 6;
+  speed = BASE_SPEED; timeScale = 1; shake = 0; flash = 0; bodyHue = 190;
+  shield = false; dashT = 0; slowT = 0; powerupT = 10; grow = 0; moveAccum = 0;
+  deathTimer = 0; levelHue = 180; portalCd = 0;
+  spawnFood(); spawnFood(); spawnPortals();
+  spawnObstacle(); spawnObstacle();
+  spawnPowerup();
+  updateHUD();
+}
+
+/* ================== ДЕМО-ЗМІЙКА В МЕНЮ ================== */
+function resetDemo(){
+  const cx = Math.floor(COLS / 2), cy = Math.floor(ROWS / 2);
+  demoSnake = [];
+  for(let i = 0; i < 10; i++) demoSnake.push({x:cx - i, y:cy});
+  demoDir = {x:1, y:0}; demoAcc = 0;
+}
+function updateDemo(dt){
+  if(demoSnake.length === 0) resetDemo();
+  demoAcc += dt * 4;
+  while(demoAcc >= 1){
+    demoAcc -= 1;
+    const head = demoSnake[0];
+    if(!head) break;
+    if(Math.random() < 0.15){
+      const dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+      const d = dirs[irnd(0,4)];
+      if(head.x + d.x >= 0 && head.x + d.x < COLS && head.y + d.y >= 0 && head.y + d.y < ROWS){
+        demoDir = d;
+      }
+    }
+    demoSnake.unshift({x:head.x + demoDir.x, y:head.y + demoDir.y});
+    demoSnake.pop();
+  }
+}
+function updateStars(dt){
+  for(let i = 0; i < 1; i++){
+    stars.push({x:Math.random() * w, y:Math.random() * h, r:rnd(0.4,1.6), sp:rnd(6,20)});
+  }
+  for(let i = 0; i < stars.length; i++){
+    const s = stars[i];
+    s.y += s.sp * dt;
+    if(s.y > h + 4) s.y = -4;
+  }
+  if(stars.length > 220) stars.shift();
+}
+function updateFx(dt){
+  for(let i = particles.length - 1; i >= 0; i--){
+    const p = particles[i];
+    p.life += dt;
+    if(p.life >= p.ttl){ particles.splice(i,1); continue; }
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    p.vx *= Math.max(0, 1 - p.drag * dt); p.vy *= Math.max(0, 1 - p.drag * dt);
+  }
+  for(let i = texts.length - 1; i >= 0; i--){
+    const t = texts[i]; t.life += dt;
+    if(t.life >= t.ttl) texts.splice(i,1);
+  }
+  for(let i = shocks.length - 1; i >= 0; i--){
+    const s = shocks[i]; s.life += dt; s.r += 160 * dt;
+    if(s.life >= s.ttl) shocks.splice(i,1);
+  }
+}
+
+/* ================== ПОРТАЛ-ПЕРЕХІД ================== */
+function portalTravel(){
+  if(portalCd > 0) return;
+  const head = snake[0];
+  let idx = -1;
+  for(let i = 0; i < portals.length; i++){
+    if(portals[i].x === head.x && portals[i].y === head.y) idx = i;
+  }
+  if(idx < 0 || portals.length < 2) return;
+  portalCd = 1.2;
+  const target = portals[1 - idx];
+  const back = {x:head.x, y:head.y};
+  const dx = target.x - head.x;
+  const dy = target.y - head.y;
+  for(let i = 0; i < snake.length; i++){
+    snake[i].x += dx;
+    snake[i].y += dy;
+    if(snake[i].x < 0) snake[i].x += COLS;
+    if(snake[i].x >= COLS) snake[i].x -= COLS;
+    if(snake[i].y < 0) snake[i].y += ROWS;
+    if(snake[i].y >= ROWS) snake[i].y -= ROWS;
+  }
+  prevSnake = snake.map(p => ({x:p.x, y:p.y}));
+  burst(back.x, back.y, 22, 280, 90);
+  burst(target.x, target.y, 22, 280, 90);
+  addShock(target.x, target.y, '#c77bff');
+  sPortal();
+  shake = Math.max(shake, 5);
+}
+
+/* ================== ОБРОБКА ЇЖІ ================== */
+function eatAt(x, y){
+  for(let i = foods.length - 1; i >= 0; i--){
+    const f = foods[i];
+    if(f.x === x && f.y === y){
+      const wasCombo = combo > 0;
+      const nowTime = now;
+      if(wasCombo && nowTime - comboT <= COMBO_WINDOW){
+        combo++;
+      } else {
+        combo = 1;
+      }
+      comboT = nowTime;
+      comboMax = Math.max(comboMax, combo);
+      const mult = combo >= 3 ? combo : 1;
+      const pts = f.val * mult;
+      score += pts;
+      if(score < 0) score = 0;
+      foodsEaten++;
+      grow += f.grow;
+      if(f.type === 'toxic' && snake.length > 2){
+        const shrink = Math.min(2, snake.length - 2);
+        for(let s = 0; s < shrink; s++){
+          snake.pop();
+          if(prevSnake.length > snake.length) prevSnake.pop();
+        }
+      }
+      burst(f.x, f.y, f.type === 'toxic' ? 14 : 20, f.hue, f.type === 'toxic' ? 60 : 90);
+      addText(f.x, f.y, (pts > 0 ? '+' : '') + pts, f.type === 'toxic' ? '#ff4d6d' : '#00ffd0');
+      addShock(f.x, f.y, f.type === 'toxic' ? '#ff4d6d' : '#00ffd0');
+      foods.splice(i,1);
+      spawnFood();
+      if(f.type === 'toxic'){ sToxic(); flash = 0.35; shake = Math.max(shake, 6); bodyHue = 0; }
+      else { sEat(foodsEaten); bodyHue = segHue(0); }
+      updateHUD();
+      return;
+    }
+  }
+}
+
+/* ================== ОБРОБКА БОНУСІВ ================== */
+function applyPowerup(p){
+  if(p.type === 'shield'){
+    shield = true;
+    addText(p.x, p.y, 'ЩИТ!', '#7fffe0');
+    burst(p.x, p.y, 24, 160, 100);
+    sShield();
+  } else if(p.type === 'dash'){
+    dashT = 0.28;
+    addText(p.x, p.y, 'ДАШ!', '#ffd700');
+    burst(p.x, p.y, 24, 50, 110);
+    sPower();
+  } else if(p.type === 'slow'){
+    slowT = 4;
+    addText(p.x, p.y, 'СЛОУ-МО!', '#6ff2ff');
+    burst(p.x, p.y, 24, 200, 110);
+    sPower();
+  }
+  for(let i = powerups.length - 1; i >= 0; i--){
+    if(powerups[i].x === p.x && powerups[i].y === p.y){ powerups.splice(i,1); break; }
+  }
+}
+
+/* ================== ГРАВЦІ: ПОТІК ЧАСУ / ОНОВЛЕННЯ ================== */
+function updateGame(dt){
+  if(comboT > 0 && now - comboT > COMBO_WINDOW){
+    if(combo > 0){ combo = 0; updateHUD(); }
+  }
+  if(shield) flash = Math.max(flash, 0.06);
+  if(flash > 0) flash -= dt * 1.4;
+  if(shake > 0) shake = Math.max(0, shake - 26 * dt);
+  if(dashT > 0) dashT -= dt;
+  if(slowT > 0) slowT -= dt;
+  if(portalCd > 0) portalCd -= dt;
+  timeScale = slowT > 0 ? 0.45 : 1;
+  powerupT -= dt;
+  if(powerupT <= 0){
+    powerupT = 10;
+    spawnPowerup();
+  }
+
+  const head = snake[0];
+  if(!head) return;
+
+  /* --- даш: стрибок у напрямку руху (з обгортанням поля) --- */
+  if(dashT > 0){
+    let nx = head.x + dir.x, ny = head.y + dir.y;
+    for(let k = 0; k < 4; k++){
+      if(nx < 0) nx = COLS - 1;
+      if(nx >= COLS) nx = 0;
+      if(ny < 0) ny = ROWS - 1;
+      if(ny >= ROWS) ny = 0;
+      if(snake.some(s => s.x === nx && s.y === ny)) break;
+      nx += dir.x; ny += dir.y;
+    }
+    nx -= dir.x; ny -= dir.y;
+    if(nx < 0) nx = COLS - 1;
+    if(nx >= COLS) nx = 0;
+    if(ny < 0) ny = ROWS - 1;
+    if(ny >= ROWS) ny = 0;
+    let dxx = nx - head.x, dyy = ny - head.y;
+    for(let i = 0; i < snake.length; i++){
+      snake[i].x += dxx;
+      snake[i].y += dyy;
+    }
+    prevSnake = snake.map(p => ({x:p.x, y:p.y}));
+    moveAccum = 0;
+    dashT = 0;
+    burst(nx, ny, 26, 55, 140);
+    addText(nx, ny, 'ВЖЖЖ!', '#ffd700');
+    shake = Math.max(shake, 7);
+    sfx(900, 0.25, 'sawtooth', 0.2, 0.1);
+  }
+
+  /* --- рух --- */
+  const mv = (dashT > 0 ? 40 : speed) * dt * timeScale;
+  moveAccum += mv;
+  const maxSteps = dashT > 0 ? 40 : 3;
+  let steps = 0;
+  while(moveAccum >= 1 && steps < maxSteps){
+    moveAccum -= 1;
+    steps++;
+    if(dirQueue.length){
+      const nd = dirQueue.shift();
+      if(!(nd.x === -dir.x && nd.y === -dir.y)) dir = nd;
+    }
+    const cur = snake[0];
+    if(!cur) break;
+    const nh = {x:cur.x + dir.x, y:cur.y + dir.y};
+    /* телепорт через краї */
+    if(nh.x < 0) nh.x = COLS - 1;
+    if(nh.x >= COLS) nh.x = 0;
+    if(nh.y < 0) nh.y = ROWS - 1;
+    if(nh.y >= ROWS) nh.y = 0;
+    /* зіткнення з тілом */
+    if(snake.slice(1).some(s => s.x === nh.x && s.y === nh.y)){
+      die();
+      return;
+    }
+    /* перешкода: щит руйнує її і пропускає крок */
+    const obsIdx = obstacles.findIndex(o => o.x === nh.x && o.y === nh.y);
+    if(obsIdx >= 0){
+      if(shield){
+        shield = false;
+        obstacles.splice(obsIdx, 1);
+        shake = Math.max(shake, 10);
+        flash = 0.5;
+        burst(nh.x, nh.y, 30, 165, 150);
+        sShield();
+        updateHUD();
+      } else {
+        die();
+        return;
+      }
+    }
+    snake.unshift(nh);
+    prevSnake.unshift({x:cur.x, y:cur.y});
+    if(grow > 0){
+      grow--;
+    } else {
+      snake.pop();
+      prevSnake.pop();
+    }
+    eatAt(nh.x, nh.y);
+    /* бонуси */
+    for(let i = powerups.length - 1; i >= 0; i--){
+      if(powerups[i].x === nh.x && powerups[i].y === nh.y){
+        applyPowerup(powerups[i]);
+        break;
+      }
+    }
+    portalTravel();
+    if(snake.length <= 0) return;
+    if(obstacles.some(o => o.x === snake[0].x && o.y === snake[0].y)){
+      if(shield){
+        shield = false;
+        obstacles = obstacles.filter(o => !(o.x === snake[0].x && o.y === snake[0].y));
+        shake = Math.max(shake, 10);
+        flash = 0.5;
+        burst(snake[0].x, snake[0].y, 30, 165, 150);
+        sShield();
+        updateHUD();
+      } else {
+        die();
+        return;
+      }
+    }
+  }
+
+  /* --- рівні --- */
+  if(foodsEaten >= levelUpAt){
+    level++;
+    levelUpAt += 4 + level;
+    speed = Math.min(MAX_SPEED, speed + SPEED_PER_LEVEL);
+    bodyHue = segHue(0);
+    levelHue = 180 + Math.random() * 360;
+    flash = 0.45;
+    spawnObstacle(); spawnObstacle();
+    spawnPowerup();
+    burst(0, 0, 60, levelHue, 220);
+    addShock(0, 0, '#ffd700');
+    sLevel();
+    updateHUD();
+  }
+}
+
+/* ================== СМЕРТЬ ================== */
+function die(){
+  state = 'dying';
+  deathTimer = 0;
+  sDeath();
+  shake = 18; flash = 1;
+  const head = snake[0];
+  for(let i = 0; i < snake.length; i++){
+    const seg = snake[i];
+    ghosts.push({x:seg.x, y:seg.y, hue:segHue(i), life:0, ttl:1.4});
+    burst(seg.x, seg.y, 3, segHue(i), 70);
+  }
+  snake = [];
+  updateHUD();
+}
+
+/* ================== HUD ================== */
+function updateHUD(){
+  scoreVal.textContent = score;
+  bestVal.textContent = best;
+  levelVal.textContent = level;
+  const on = combo >= 2;
+  comboBox.classList.toggle('on', on);
+  if(on){
+    comboTxt.textContent = 'x' + combo + ' 🔥';
+    const frac = Math.max(0, 1 - (now - comboT) / COMBO_WINDOW);
+    comboBarInner.style.width = Math.max(3, frac * 100) + '%';
+  }
+  chips.innerHTML = '';
+  if(shield) chips.innerHTML += '<span class="chip">🛡 ЩИТ</span>';
+  if(dashT > 0) chips.innerHTML += '<span class="chip">⚡ ДАШ</span>';
+  if(slowT > 0) chips.innerHTML += '<span class="chip">⏳ СЛОУ-МО</span>';
+  if(combo >= 5) chips.innerHTML += '<span class="chip">🌈 КОМБО</span>';
+}
+
+/* ================== СТАН ГРИ ================== */
+function startGame(){
+  initAudio();
+  resetGame();
+  state = 'play';
+  menu.classList.add('hidden');
+  over.classList.add('hidden');
+  pause.classList.add('hidden');
+  pauseBtn.textContent = '⏸';
+  updateHUD();
+}
+function togglePause(){
+  if(state === 'play'){
+    state = 'paused';
+    pause.classList.remove('hidden');
+    pauseBtn.textContent = '▶';
+  } else if(state === 'paused'){
+    state = 'play';
+    pause.classList.add('hidden');
+    pauseBtn.textContent = '⏸';
+  }
+}
+function toggleSound(){
+  musicOn = !musicOn;
+  soundBtn.textContent = musicOn ? '🔊' : '🔇';
+  if(master) master.gain.value = musicOn ? 0.5 : 0;
+}
+
+/* ================== РЕНДЕР: ДОПОМІЖНІ ================== */
+function hsla(h, s, l, a){
+  return 'hsla(' + h + ',' + s + '%,' + l + '%,' + a + ')';
+}
+function roundRect(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+/* ================== РЕНДЕР: ЗІРКИ ================== */
+function drawStars(){
+  for(let i = 0; i < stars.length; i++){
+    const s = stars[i];
+    ctx.globalAlpha = 0.25 + Math.sin(now * 3 + i) * 0.15;
+    ctx.fillStyle = '#aef6ff';
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, 7);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ================== РЕНДЕР: СІТКА ================== */
+function drawGrid(){
+  ctx.save();
+  ctx.globalAlpha = 0.16;
+  ctx.strokeStyle = '#00e6ff';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for(let i = 1; i < COLS; i++){
+    const x = gx(i);
+    ctx.moveTo(x, oy); ctx.lineTo(x, oy + ROWS * cell);
+  }
+  for(let j = 1; j < ROWS; j++){
+    const y = gy(j);
+    ctx.moveTo(ox, y); ctx.lineTo(ox + COLS * cell, y);
+  }
+  ctx.stroke();
+  ctx.globalAlpha = 0.35;
+  ctx.strokeStyle = '#00e6ff';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(ox, oy, COLS * cell, ROWS * cell);
+  ctx.restore();
+}
+
+/* ================== РЕНДЕР: ОБ'ЄКТИ ================== */
+function drawPortal(p){
+  const x = gx(p.x) + cell / 2, y = gy(p.y) + cell / 2;
+  const r = cell * 0.5;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for(let i = 0; i < 2; i++){
+    ctx.strokeStyle = hsla(p.hue, 100, 65, 0.25);
+    ctx.lineWidth = cell * 0.16;
+    ctx.beginPath();
+    ctx.arc(x, y, r + i * cell * 0.13 + Math.sin(now * 4 + p.hue) * 3, 0, 7);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(x, y, cell * 0.32, 0, 7);
+  ctx.fillStyle = hsla(p.hue, 100, 60, 0.35);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y, cell * 0.16, 0, 7);
+  ctx.fillStyle = hsla(p.hue, 100, 80, 0.9);
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.font = (cell * 0.4) + 'px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = hsla(p.hue, 100, 75, 0.85);
+  ctx.fillText('🌀', x, y);
+  ctx.restore();
+}
+function drawFood(f){
+  const x = gx(f.x) + cell / 2, y = gy(f.y) + cell / 2;
+  const r = cell * 0.42;
+  const bob = Math.sin(now * 3 + f.age * 7) * cell * 0.05;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.shadowColor = hsla(f.hue, 100, 60, 0.9);
+  ctx.shadowBlur = 18;
+  ctx.fillStyle = hsla(f.hue, 100, 65, 0.95);
+  ctx.beginPath();
+  ctx.arc(x, y + bob, r, 0, 7);
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.beginPath();
+  ctx.arc(x - r * 0.25, y - r * 0.28 + bob, r * 0.25, 0, 7);
+  ctx.fill();
+  ctx.restore();
+}
+function drawToxic(f){
+  const x = gx(f.x) + cell / 2, y = gy(f.y) + cell / 2;
+  const r = cell * 0.36;
+  ctx.save();
+  ctx.shadowColor = '#ff1a4a';
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = '#ff3b6b';
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, 7);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, 7);
+  ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold ' + (cell * 0.4) + 'px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('☠', x, y);
+}
+function drawStarFood(f){
+  const x = gx(f.x) + cell / 2, y = gy(f.y) + cell / 2;
+  const r = cell * 0.52;
+  const rot = now * 1.4;
+  ctx.save();
+  ctx.shadowColor = '#8ce7ff';
+  ctx.shadowBlur = 24;
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  ctx.beginPath();
+  for(let i = 0; i < 10; i++){
+    const ang = -Math.PI / 2 + i * Math.PI / 5;
+    const rr = i % 2 === 0 ? r : r * 0.45;
+    const px = Math.cos(ang) * rr, py = Math.sin(ang) * rr;
+    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fillStyle = '#c8f6ff';
+  ctx.fill();
+  ctx.restore();
+}
+function drawFoods(){
+  for(let i = 0; i < foods.length; i++){
+    const f = foods[i];
+    if(f.type === 'star') drawStarFood(f);
+    else if(f.type === 'toxic') drawToxic(f);
+    else drawFood(f);
+  }
+}
+function drawObstacle(o){
+  const x = gx(o.x), y = gy(o.y);
+  const s = cell * 0.86;
+  ctx.save();
+  ctx.translate(x + cell / 2, y + cell / 2);
+  ctx.rotate(Math.sin(now * 0.6 + o.seed) * 0.15);
+  ctx.strokeStyle = '#e0f7ff';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#00e6ff';
+  ctx.shadowBlur = 8;
+  roundRect(-s / 2, -s / 2, s, s, s * 0.22);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(0,230,255,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.25, -s * 0.1); ctx.lineTo(s * 0.25, -s * 0.1);
+  ctx.moveTo(-s * 0.25, s * 0.1);  ctx.lineTo(s * 0.25, s * 0.1);
+  ctx.stroke();
+  ctx.restore();
+}
+function drawPowerup(p){
+  const x = gx(p.x) + cell / 2, y = gy(p.y) + cell / 2;
+  const pulse = 0.5 + Math.sin(now * 4 + p.x) * 0.5;
+  const col = p.type === 'shield' ? '#7fffe0' : p.type === 'dash' ? '#ffd700' : '#6ff2ff';
+  const hue = p.type === 'shield' ? 160 : p.type === 'dash' ? 50 : 200;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.fillStyle = hsla(hue, 100, 60, 0.25 + pulse * 0.25);
+  roundRect(x - cell * 0.55, y - cell * 0.55, cell * 1.1, cell * 1.1, cell * 0.2);
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = col;
+  ctx.shadowBlur = 14;
+  roundRect(x - cell * 0.55, y - cell * 0.55, cell * 1.1, cell * 1.1, cell * 0.2);
+  ctx.stroke();
+  ctx.font = (cell * 0.55) + 'px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#fff';
+  ctx.fillText(p.type === 'shield' ? '🛡' : p.type === 'dash' ? '⚡' : '⏳', x, y);
+  ctx.restore();
+}
+
+/* ================== РЕНДЕР: ЗМІЙКА ================== */
+function drawSnake(alpha){
+  if(snake.length === 0) return;
+  const n = snake.length;
+  const head = snake[0];
+  const headP = prevSnake[0] || head;
+
+  /* --- очі --- */
+  const ex = lerp(headP.x, head.x, alpha);
+  const ey = lerp(headP.y, head.y, alpha);
+  const exx = gx(ex) + cell / 2, eyy = gy(ey) + cell / 2;
+  const a = Math.atan2(dir.y, dir.x);
+  const eyeOff = cell * 0.2, eyeR = cell * 0.11;
+  const pr = Math.PI / 2;
+  const p1 = {x:exx + Math.cos(a + pr) * eyeOff, y:eyy + Math.sin(a + pr) * eyeOff};
+  const p2 = {x:exx + Math.cos(a - pr) * eyeOff, y:eyy + Math.sin(a - pr) * eyeOff};
+
+  /* --- хвіст: градієнт + неон --- */
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for(let pass = 0; pass < 2; pass++){
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = pass === 0 ? cell * 0.78 : cell * 0.5;
+    ctx.strokeStyle = pass === 0 ? hsla(210, 90, 20, 0.85) : '#0c1630';
+    ctx.beginPath();
+    for(let i = 0; i < n; i++){
+      const seg = snake[i];
+      const prev = prevSnake[i] || seg;
+      const sx = lerp(prev.x, seg.x, alpha);
+      const sy = lerp(prev.y, seg.y, alpha);
+      const px = gx(sx) + cell / 2, py = gy(sy) + cell / 2;
+      if(i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = alpha;
+  for(let pass = 0; pass < 2; pass++){
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.lineWidth = pass === 0 ? cell * 0.72 : cell * 0.46;
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.shadowColor = '#00e6ff';
+    ctx.shadowBlur = pass === 0 ? 24 : 14;
+    ctx.strokeStyle = hsla(190, 100, 55, 0.95);
+    ctx.beginPath();
+    for(let i = 0; i < n; i++){
+      const seg = snake[i];
+      const prev = prevSnake[i] || seg;
+      const sx = lerp(prev.x, seg.x, alpha);
+      const sy = lerp(prev.y, seg.y, alpha);
+      const px = gx(sx) + cell / 2, py = gy(sy) + cell / 2;
+      if(i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  /* --- світні сегменти по тілу --- */
+  for(let i = 1; i < n; i += 2){
+    const seg = snake[i], prev = prevSnake[i] || seg;
+    const sx = lerp(prev.x, seg.x, alpha);
+    const sy = lerp(prev.y, seg.y, alpha);
+    const px = gx(sx) + cell / 2, py = gy(sy) + cell / 2;
+    const h = segHue(i);
+    ctx.globalAlpha = alpha * 0.8;
+    ctx.fillStyle = hsla(h, 100, 65, 0.7);
+    ctx.beginPath();
+    ctx.arc(px, py, cell * 0.28, 0, 7);
+    ctx.fill();
+  }
+  /* --- голова --- */
+  const hh = segHue(0);
+  const hr = cell * 0.48;
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = hsla(hh, 100, 60, 1);
+  ctx.shadowColor = hsla(hh, 100, 60, 1);
+  ctx.shadowBlur = 24;
+  ctx.beginPath();
+  ctx.arc(exx, eyy, hr, 0, 7);
+  ctx.fill();
+  /* ніс */
+  ctx.beginPath();
+  ctx.arc(exx + Math.cos(a) * hr * 0.8, eyy + Math.sin(a) * hr * 0.8, cell * 0.1, 0, 7);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(exx + Math.cos(a) * hr * 0.5, eyy + Math.sin(a) * hr * 0.5, cell * 0.08, 0, 7);
+  ctx.fill();
+  /* очі */
+  ctx.fillStyle = '#0a0f22';
+  ctx.beginPath();
+  ctx.arc(p1.x, p1.y, eyeR, 0, 7);
+  ctx.arc(p2.x, p2.y, eyeR, 0, 7);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(p1.x + Math.cos(a) * eyeR * 0.35, p1.y + Math.sin(a) * eyeR * 0.35, eyeR * 0.45, 0, 7);
+  ctx.arc(p2.x + Math.cos(a) * eyeR * 0.35, p2.y + Math.sin(a) * eyeR * 0.35, eyeR * 0.45, 0, 7);
+  ctx.fill();
+  /* язик */
+  if(Math.sin(now * 10) > 0.4){
+    ctx.strokeStyle = '#ff3b6b';
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(exx + Math.cos(a) * hr, eyy + Math.sin(a) * hr);
+    ctx.lineTo(exx + Math.cos(a) * (hr + cell * 0.28), eyy + Math.sin(a) * (hr + cell * 0.28));
+    ctx.stroke();
+  }
+  /* щит */
+  if(shield){
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = 'rgba(127,255,224,0.7)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(exx, eyy, cell * 0.85, 0, 7);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(127,255,224,0.25)';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.arc(exx, eyy, cell * 0.85, 0, 7);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ================== РЕНДЕР: ЕФЕКТИ ================== */
+function drawFx(){
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for(let i = 0; i < particles.length; i++){
+    const p = particles[i];
+    const a = 1 - p.life / p.ttl;
+    ctx.fillStyle = hsla(p.hue, p.sat, 60, a);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.s * a, 0, 7);
+    ctx.fill();
+  }
+  ctx.restore();
+  for(let i = 0; i < texts.length; i++){
+    const t = texts[i];
+    const a = 1 - t.life / t.ttl;
+    ctx.globalAlpha = a;
+    ctx.font = 'bold ' + (cell * 0.55) + 'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = t.col;
+    ctx.shadowColor = t.col;
+    ctx.shadowBlur = 12;
+    ctx.fillText(t.txt, t.x, t.y - t.life * cell * 2);
+  }
+  ctx.globalAlpha = 1;
+  for(let i = 0; i < shocks.length; i++){
+    const s = shocks[i];
+    const a = 1 - s.life / s.ttl;
+    ctx.strokeStyle = s.color;
+    ctx.globalAlpha = a * 0.7;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r * (0.3 + 0.7 * (s.life / s.ttl)), 0, 7);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ================== РЕНДЕР: ПРИВИДИ (СМЕРТЬ) ================== */
+function drawGhosts(){
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for(let i = 0; i < ghosts.length; i++){
+    const g = ghosts[i];
+    const a = 1 - g.life / g.ttl;
+    const x = gx(g.x) + cell / 2, y = gy(g.y) + cell / 2;
+    ctx.fillStyle = hsla(g.hue, 100, 65, a * 0.8);
+    ctx.beginPath();
+    ctx.arc(x, y, cell * 0.4 * (0.4 + 0.6 * a), 0, 7);
+    ctx.fill();
+    ctx.strokeStyle = hsla(g.hue, 100, 70, a);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, cell * 0.45 + (1 - a) * cell * 0.5, 0, 7);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ================== РЕНДЕР: DEMO / ФОН ================== */
+function drawDemo(){
+  const n = demoSnake.length;
+  if(n === 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for(let pass = 0; pass < 2; pass++){
+    ctx.lineWidth = pass === 0 ? cell * 0.7 : cell * 0.42;
+    ctx.strokeStyle = pass === 0 ? '#0c1630' : hsla(190, 100, 55, 0.65);
+    ctx.beginPath();
+    for(let i = 0; i < n; i++){
+      const s = demoSnake[i];
+      const px = gx(s.x) + cell / 2, py = gy(s.y) + cell / 2;
+      if(i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 0.5;
+  for(let i = 1; i < n; i += 2){
+    const s = demoSnake[i];
+    ctx.fillStyle = hsla(190 - i * 4, 100, 60, 0.5);
+    ctx.beginPath();
+    ctx.arc(gx(s.x) + cell / 2, gy(s.y) + cell / 2, cell * 0.25, 0, 7);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  const head = demoSnake[0];
+  const hx = gx(head.x) + cell / 2, hy = gy(head.y) + cell / 2;
+  ctx.fillStyle = hsla(190, 100, 60, 0.9);
+  ctx.beginPath();
+  ctx.arc(hx, hy, cell * 0.44, 0, 7);
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ================== ГОЛОВНИЙ РЕНДЕР ================== */
+function render(){
+  ctx.fillStyle = '#04050e';
+  ctx.fillRect(0, 0, w, h);
+
+  /* тремтіння екрану */
+  ctx.save();
+  if(shake > 0){
+    ctx.translate((Math.random() * 2 - 1) * shake, (Math.random() * 2 - 1) * shake);
+  }
+
+  drawStars();
+  drawGrid();
+  for(let i = 0; i < obstacles.length; i++) drawObstacle(obstacles[i]);
+  for(let i = 0; i < portals.length; i++) drawPortal(portals[i]);
+  drawFoods();
+  for(let i = 0; i < powerups.length; i++) drawPowerup(powerups[i]);
+
+  const alpha = Math.max(0.4, Math.min(1, moveAccum * 1.6));
+  if(snake.length > 0) drawSnake(alpha);
+  else if(state === 'menu' || state === 'paused') drawDemo();
+
+  drawGhosts();
+  drawFx();
+
+  /* спалах екрану */
+  if(flash > 0){
+    ctx.fillStyle = 'rgba(255,255,255,' + Math.min(0.85, flash * 0.6) + ')';
+    ctx.fillRect(-40, -40, w + 80, h + 80);
+  }
+  ctx.restore();
+}
+
+/* ================== РОЗМІР КАНВАСУ ================== */
+function resize(){
+  w = window.innerWidth; h = window.innerHeight;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cell = Math.min(w / (COLS + 2), h / (ROWS + 3));
+  ox = (w - COLS * cell) / 2;
+  oy = (h - ROWS * cell) / 2 + cell * 0.5;
+}
+
+/* ================== ОБРОБНИКИ ВВОДУ ================== */
+const keys = {};
+window.addEventListener('keydown', function(e){
+  const k = e.key.toLowerCase();
+  keys[k] = true;
+  if(k === 'arrowup' || k === 'w'){ e.preventDefault(); setDir(0, -1); }
+  else if(k === 'arrowdown' || k === 's'){ e.preventDefault(); setDir(0, 1); }
+  else if(k === 'arrowleft' || k === 'a'){ e.preventDefault(); setDir(-1, 0); }
+  else if(k === 'arrowright' || k === 'd'){ e.preventDefault(); setDir(1, 0); }
+  else if(k === 'p' || k === ' ' || k === 'escape'){ e.preventDefault(); togglePause(); }
+  else if(k === 'm'){ toggleSound(); }
+  else if(k === 'r'){
+    if(state === 'play' || state === 'paused'){ resetGame(); updateHUD(); }
+    else if(state === 'over'){ startGame(); }
+    else { startGame(); }
+  }
+  else if(k === 'enter'){
+    if(state === 'menu') startGame();
+    else if(state === 'over' && over.classList.contains('hidden') === false){ startGame(); }
+  }
+});
+function setDir(x, y){
+  if(state !== 'play' && state !== 'paused') return;
+  const ref = dirQueue.length > 0 ? dirQueue[dirQueue.length - 1] : dir;
+  if(ref.x === x && ref.y === y) return;
+  if(ref.x === -x && ref.y === -y) return;
+  if(dirQueue.length < 3) dirQueue.push({x:x, y:y});
+}
+window.addEventListener('keyup', function(e){ keys[e.key.toLowerCase()] = false; });
+
+/* --- дотики: свайп --- */
+let touchX = 0, touchY = 0, touchT = 0;
+window.addEventListener('touchstart', function(e){
+  const t = e.changedTouches[0];
+  touchX = t.clientX; touchY = t.clientY; touchT = performance.now();
+  if(state === 'menu') startGame();
+});
+window.addEventListener('touchmove', function(e){ e.preventDefault(); }, {passive:false});
+window.addEventListener('touchend', function(e){
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchX, dy = t.clientY - touchY;
+  const dt = (performance.now() - touchT) / 1000;
+  const dist = Math.max(Math.abs(dx), Math.abs(dy));
+  if(dist > 24 && dt < 0.5){
+    if(Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+    else setDir(0, dy > 0 ? 1 : -1);
+  }
+});
+
+/* --- клік миші по канвасу: напрямок до курсора --- */
+window.addEventListener('mousedown', function(e){
+  if(state !== 'play' && state !== 'paused') return;
+  if(e.target === canvas){
+    const head = snake[0];
+    if(!head) return;
+    const hx = gx(head.x) + cell / 2, hy = gy(head.y) + cell / 2;
+    const dx = e.clientX - hx, dy = e.clientY - hy;
+    const adx = Math.abs(dx), ady = Math.abs(dy);
+    if(adx < 14 && ady < 14) return;
+    if(adx > ady) setDir(dx > 0 ? 1 : -1, 0);
+    else setDir(0, dy > 0 ? 1 : -1);
+  }
+});
+
+/* --- кнопки --- */
+startBtn.addEventListener('click', startGame);
+againBtn.addEventListener('click', startGame);
+resumeBtn.addEventListener('click', togglePause);
+pauseBtn.addEventListener('click', togglePause);
+soundBtn.addEventListener('click', toggleSound);
+
+resize();
+window.addEventListener('resize', resize);
+resetDemo();
+
+/* ================== ГОЛОВНИЙ ЦИКЛ ================== */
+function frame(ts){
+  const dt = Math.min(0.05, (ts - lastTime) / 1000);
+  lastTime = ts;
+  now += dt;
+
+  updateStars(dt);
+  updateFx(dt);
+
+  if(state === 'menu'){
+    updateDemo(dt);
+  } else if(state === 'play'){
+    updateGame(dt);
+  } else if(state === 'dying'){
+    deathTimer += dt;
+    for(let i = ghosts.length - 1; i >= 0; i--){
+      ghosts[i].life += dt;
+      if(ghosts[i].life >= ghosts[i].ttl) ghosts.splice(i,1);
+    }
+    if(deathTimer >= 1.3){
+      state = 'over';
+      if(score > best){
+        best = score;
+        localStorage.setItem('neonViperBest', best);
+      }
+      overScore.textContent = score;
+      overBest.textContent = best;
+      overLevel.textContent = level;
+      overEaten.textContent = foodsEaten;
+      overCombo.textContent = comboMax;
+      bestVal.textContent = best;
+      over.classList.remove('hidden');
+    }
+  }
+
+  render();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* Debug/test API (temp file only) */
+window.__NV_DEBUG__ = {
+  getState(){
+    return {
+      state, score, best, level, combo, comboMax, shield, dashT, slowT, musicOn,
+      foodsEaten, grow, moveAccum, dir: {x:dir.x, y:dir.y}, dirQueue: dirQueue.map(d => ({...d})),
+      snake: snake.map(s => ({x:s.x, y:s.y})), snakeLen: snake.length,
+      foods: foods.map(f => ({x:f.x, y:f.y, type:f.type, val:f.val})),
+      powerups: powerups.map(p => ({x:p.x, y:p.y, type:p.type})),
+      portals: portals.map(p => ({x:p.x, y:p.y})),
+      obstacles: obstacles.map(o => ({x:o.x, y:o.y})),
+      ghosts: ghosts.length
+    };
+  },
+  start(){ startGame(); },
+  pause(){ togglePause(); },
+  dir(x, y){ setDir(x, y); },
+  placeFood(type, x, y){
+    for(let i = foods.length - 1; i >= 0; i--) if(foods[i].x === x && foods[i].y === y) foods.splice(i, 1);
+    const conf = {
+      orb:   {val:1, grow:1, hue:135},
+      gold:  {val:3, grow:2, hue:50},
+      star:  {val:5, grow:3, hue:190},
+      toxic: {val:-2,grow:-1,hue:345}
+    }[type] || {val:1, grow:1, hue:135};
+    foods.push({x, y, type, val:conf.val, grow:conf.grow, hue:conf.hue, age:0});
+  },
+  eatNext(){
+    const h = snake[0];
+    if(!h) return;
+    this.placeFood('orb', h.x + dir.x, h.y + dir.y);
+  },
+  grantShield(){ shield = true; updateHUD(); },
+  grantDash(){ dashT = 0.28; updateHUD(); },
+  grantSlow(){ slowT = 4; updateHUD(); },
+  placePowerup(type, x, y){
+    for(let i = powerups.length - 1; i >= 0; i--) if(powerups[i].x === x && powerups[i].y === y) powerups.splice(i,1);
+    powerups.push({x, y, type, age:0});
+  },
+  placePortal(x1, y1, x2, y2){ portals = [{x:x1,y:y1,hue:265},{x:x2,y:y2,hue:285}]; },
+  placeObstacle(x, y){ obstacles.push({x, y, seed:0}); },
+  forceLevel(lv){ level = lv; foodsEaten = 0; levelUpAt = 6; },
+  tick(ms){
+    const step = 1000 / 60;
+    const frames = Math.max(1, Math.ceil(ms / step));
+    for(let i = 1; i <= frames; i++){
+      frame(lastTime + step);
+    }
+  }
+};
+
+})();
+</script>
+</body>
+</html>
